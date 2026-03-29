@@ -1,50 +1,57 @@
-# 🖥️ XP Workspace
+# XP Workspace
 
 **Project Management & Knowledge Base** — wrapped in a Windows XP desktop experience.
 
-A full-featured productivity suite built with **PHP Native MVC** and **SQLite**, themed as a Windows XP desktop environment with multi-window management, Start Menu, taskbar, system tray, and drag-and-drop.
+A full-featured productivity suite built with **PHP Native MVC** and **MySQL**, themed as an authentic Windows XP desktop with 500+ real XP icons, wallpapers, sounds, cursors, and pixel-perfect UI via xp.css.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Requirements
-- PHP 8.0+ with PDO SQLite extension
-- Apache with `mod_rewrite` (or Nginx equivalent)
+- PHP 8.0+ with `pdo_mysql` extension
+- MySQL 5.7+ / MariaDB 10.3+
+- Apache with `mod_rewrite` (or Nginx)
 - No Composer, no npm — zero dependencies
 
-### Run Locally
+### Run with Laragon / XAMPP
+
+1. Clone ke folder web root:
+   ```bash
+   cd C:\laragon\www
+   git clone https://github.com/s4rt4/xp-workspace.git
+   ```
+2. Buka `http://localhost/xp-workspace/`
+3. Database `xp_workspace` otomatis dibuat beserta seed data
+
+### Run with PHP Dev Server
 
 ```bash
-# Clone / extract project
 cd xp-workspace
-
-# Start PHP dev server
 php -S localhost:8080
-
-# Open browser
-# → http://localhost:8080
+# Buka http://localhost:8080
 ```
 
-The SQLite database is auto-created on first run with seed data.
+### Database Config
 
-### Apache Setup
-
-Point your DocumentRoot to the project root and ensure `.htaccess` is active:
-
-```apache
-<VirtualHost *:80>
-    DocumentRoot /path/to/xp-workspace
-    <Directory /path/to/xp-workspace>
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
+Edit `config/database.php`:
+```php
+return [
+    'driver'   => 'mysql',
+    'host'     => '127.0.0.1',
+    'port'     => 3306,
+    'database' => 'xp_workspace',
+    'username' => 'root',
+    'password' => '',
+    'charset'  => 'utf8mb4',
+];
 ```
+
+Database dan tabel dibuat otomatis pada request pertama.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 xp-workspace/
@@ -52,115 +59,75 @@ xp-workspace/
 ├── .htaccess                   # URL rewriting
 ├── config/
 │   ├── app.php                 # App config & module registry
-│   ├── database.php            # DB config (SQLite/MySQL)
+│   ├── database.php            # DB config (MySQL)
 │   └── routes.php              # All route definitions
 ├── core/                       # MVC framework core
 │   ├── Router.php              # URL router with {param} support
 │   ├── Controller.php          # Base controller
 │   ├── Model.php               # Base model (Active Record)
-│   ├── Database.php            # PDO wrapper (SQLite + MySQL)
+│   ├── Database.php            # PDO wrapper with auto-migration
 │   ├── Request.php             # Input/validation helper
 │   └── Response.php            # JSON/download responses
 ├── app/
-│   ├── controllers/            # App controllers
-│   │   ├── DesktopController   # Main shell
-│   │   ├── DashboardController # Stats & overview
-│   │   ├── ProjectController   # CRUD projects
-│   │   ├── TaskController      # Kanban board & tasks
-│   │   ├── WikiController      # Knowledge base
-│   │   ├── FileController      # File uploads
-│   │   └── NoteController      # Sticky notes
-│   ├── models/
-│   │   ├── Project.php
-│   │   ├── Task.php
-│   │   ├── WikiPage.php
-│   │   └── Note.php
-│   └── views/
-│       └── layouts/
-│           └── desktop.php     # Main HTML shell
+│   ├── controllers/            # 7 controllers
+│   ├── models/                 # 4 models
+│   └── views/layouts/
+│       └── desktop.php         # Main HTML shell
 ├── public/
 │   ├── css/
-│   │   └── xp-theme.css       # Full XP Luna theme
+│   │   ├── xp.css              # XP.css library (pixel-perfect XP components)
+│   │   └── xp-theme.css        # Desktop environment overlay
 │   ├── js/
-│   │   └── desktop.js          # Window manager + all apps
-│   ├── images/icons/           # Desktop & app icons
-│   ├── sounds/                 # XP sounds (add your own!)
-│   └── cursors/                # XP cursors (add your own!)
+│   │   └── desktop.js          # Window manager + all app modules
+│   ├── icons/                  # 500+ authentic Windows XP icons (PNG)
+│   ├── images/wallpapers/      # 21 XP wallpapers including Bliss
+│   ├── sounds/                 # 30 original XP sound effects (WAV)
+│   ├── cursors/                # 100+ XP cursors (.cur/.ani)
+│   └── shell32-animation/      # 11 classic shell32 GIF animations
 ├── database/
-│   └── schema.sql              # Full schema + seed data
+│   └── schema.sql              # MySQL schema + seed data
 └── storage/
-    └── uploads/                # Uploaded files
+    └── uploads/                # User-uploaded files
 ```
 
 ---
 
-## 📦 Modules
+## Features
 
-### ✅ Active (Phase 1)
+### Desktop Environment
+- Boot screen with click-to-start (plays XP startup sound)
+- Draggable, resizable, minimizable, maximizable windows
+- Start Menu with module launcher
+- Taskbar with active window buttons
+- System tray with clock & sound toggle
+- Right-click context menu
+- Desktop icons (double-click to open)
+- XP cursors throughout the UI
+- Authentic notification balloons
+
+### Modules
 
 | Module | Description |
 |--------|-------------|
-| **Dashboard** | Stats overview, recent activity, upcoming tasks |
-| **Project Manager** | Create/manage projects with colors, progress tracking |
-| **Task Board** | Kanban board per project with drag-and-drop, priorities, due dates |
-| **Knowledge Base** | Wiki with tree structure, markdown content, search, tags |
-| **File Manager** | Upload, download, organize files in folders |
+| **Dashboard** | Stats overview, recent activity log |
+| **Project Manager** | CRUD projects with colors, progress tracking |
+| **Task Board** | Kanban board per project, drag-and-drop, priorities, due dates |
+| **Knowledge Base** | Wiki pages with markdown, search, tree sidebar |
+| **File Manager** | Upload, download, organize files |
 | **Quick Notes** | Draggable sticky notes on the desktop |
 
-### 🔜 Planned (Future Phases)
-
-| Module | Ideas |
-|--------|-------|
-| **Calendar** | Event calendar, task deadlines visualization |
-| **Contacts** | Address book linked to projects |
-| **Time Tracker** | Pomodoro timer, time logging per task |
-| **Gantt Chart** | Visual timeline across projects |
-| **Settings** | Theme picker, sound toggle, user profile |
-| **Terminal** | In-app command line for power users |
-| **Chat/Comments** | Real-time discussion per project |
-
----
-
-## 🎨 XP Theming
-
-### Built-in Themes
-- **Luna Blue** (default) — Classic XP blue
+### Theming
+- **Luna Blue** — Classic XP default
 - **Luna Silver** — Metallic gray
-- **Classic** — Windows 2000 / Classic style
-
-### Adding Your Own Assets
-
-#### Sounds
-Place `.wav` files in `public/sounds/`:
-```
-startup.wav, click.wav, error.wav, notify.wav,
-close.wav, minimize.wav, maximize.wav, recycle.wav
-```
-
-#### Cursors
-Place cursor files in `public/cursors/` and reference in CSS:
-```css
-body { cursor: url('/public/cursors/arrow.cur'), default; }
-```
-
-#### Icons
-Replace SVG placeholders in `public/images/icons/` with your shell32 icon extracts.
-
-#### Wallpaper
-Add a wallpaper image and reference in CSS:
-```css
-#desktop { background-image: url('/public/images/bliss.jpg'); }
-```
+- **Classic** — Windows 2000 style
+- **21 wallpapers** — Bliss, Azul, Autumn, and more
+- Theme & wallpaper picker via right-click desktop or Start Menu
 
 ---
 
-## 🔧 API Reference
+## API Reference
 
-All data endpoints return JSON. Format:
-
-```json
-{ "success": true, "message": "OK", "data": { ... } }
-```
+All endpoints return JSON: `{ "success": true, "message": "OK", "data": { ... } }`
 
 ### Projects
 | Method | Endpoint | Description |
@@ -210,44 +177,77 @@ All data endpoints return JSON. Format:
 
 ---
 
-## 🛠️ Development Notes
+## Adding a New Module
 
-### Adding a New Module
-
-1. **Model**: Create `app/models/YourModel.php` extending `Model`
-2. **Controller**: Create `app/controllers/YourController.php` extending `Controller`
-3. **Routes**: Add endpoints in `config/routes.php`
-4. **Frontend**: Add app object in `Apps.YourApp` in `desktop.js`
-5. **Register**: Add to `config/app.php` modules array
-6. **Icon**: Add icon to `public/images/icons/`
-
-### Switching to MySQL
-
-Edit `config/database.php`:
-```php
-return [
-    'driver'   => 'mysql',
-    'host'     => '127.0.0.1',
-    'port'     => 3306,
-    'database' => 'xp_workspace',
-    'username' => 'root',
-    'password' => '',
-    'charset'  => 'utf8mb4',
-];
-```
-
-Then import `database/schema.sql` (may need minor syntax adjustments for MySQL).
+1. **Model** — Create `app/models/YourModel.php` extending `Model`
+2. **Controller** — Create `app/controllers/YourController.php` extending `Controller`
+3. **Routes** — Add endpoints in `config/routes.php`
+4. **Frontend** — Add `Apps.YourApp` object in `desktop.js`
+5. **Register** — Add to `config/app.php` modules array
+6. **Icon** — Pick from 500+ icons in `public/icons/`
 
 ---
 
-## 📐 Tech Stack
+## Roadmap
 
-- **Backend**: PHP 8+ (native, no framework)
-- **Database**: SQLite (default) / MySQL
-- **Frontend**: Vanilla JS, CSS
-- **Architecture**: MVC
-- **Dependencies**: Zero. None. Nada.
+### Phase 1 — Polish Core
+- [ ] Task comments & checklists (tables exist, needs API + UI)
+- [ ] File preview (images, text) & linking to tasks/wiki
+- [ ] Better markdown rendering (marked.js or similar)
+- [ ] Wiki tree view with expand/collapse
+- [ ] Persist theme & wallpaper preference to database
+- [ ] Draggable desktop icons with saved positions
+
+### Phase 2 — New Modules
+- [ ] Calendar — Event calendar, task deadline visualization
+- [ ] Contacts — Address book linked to project assignees
+- [ ] Pomodoro Timer — Focus timer linked to tasks
+- [ ] Terminal — In-app command prompt for power users
+- [ ] Notepad — Full text editor (open/save files)
+
+### Phase 3 — Advanced
+- [ ] Multi-user authentication (XP welcome screen style login)
+- [ ] Global search from taskbar (search all modules)
+- [ ] Gantt chart view for project timelines
+- [ ] Real-time updates via WebSocket
+- [ ] Import/export & backup (ZIP)
+- [ ] Dashboard widgets (customizable layout)
+
+### Phase 4 — Fun & Nostalgia
+- [ ] Minesweeper mini-game
+- [ ] Clippy assistant with tips
+- [ ] Blue Screen of Death error page
+- [ ] More themes: Luna Olive, Royale, Zune Dark
+- [ ] Sound scheme manager
+- [ ] Start Menu "All Programs" with flyout
+
+See [next-development.md](next-development.md) for the full detailed plan.
 
 ---
 
-**Built with nostalgia and productivity in mind.** 🖥️✨
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | PHP 8+ (native, no framework) |
+| Database | MySQL / MariaDB |
+| Frontend | Vanilla JavaScript, CSS |
+| UI Library | xp.css (pixel-perfect XP components) |
+| Architecture | MVC |
+| Dependencies | Zero |
+
+---
+
+## Assets Included
+
+| Asset | Count | Source |
+|-------|-------|--------|
+| XP Icons (PNG) | 500+ | Extracted shell32/imageres |
+| Wallpapers | 21 | Original XP wallpapers |
+| Sound Effects | 30 | Original XP WAV files |
+| Cursors | 100+ | Original XP .cur/.ani files |
+| Shell32 Animations | 11 | Classic file operation GIFs |
+
+---
+
+Built with nostalgia and productivity in mind.
