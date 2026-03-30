@@ -1,0 +1,42 @@
+<?php
+class ProxyController extends Controller
+{
+    /**
+     * Proxy for DiceBear avatar API to avoid mixed content issues
+     */
+    public function avatar(): void
+    {
+        $style = $_GET['style'] ?? 'adventurer';
+        $seed = $_GET['seed'] ?? 'default';
+
+        // Whitelist styles
+        $allowed = ['adventurer','adventurer-neutral','avataaars','big-ears','big-smile','bottts','croodles','fun-emoji','icons','identicon','initials','lorelei','micah','miniavs','notionists','open-peeps','personas','pixel-art','thumbs'];
+        if (!in_array($style, $allowed)) {
+            $style = 'adventurer';
+        }
+
+        $seed = preg_replace('/[^a-zA-Z0-9._-]/', '', $seed);
+        $url = "https://api.dicebear.com/8.x/{$style}/svg?seed=" . urlencode($seed);
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ]);
+        $svg = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200 && $svg) {
+            header('Content-Type: image/svg+xml');
+            header('Cache-Control: public, max-age=86400');
+            echo $svg;
+        } else {
+            http_response_code(502);
+            echo '<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72"><rect width="72" height="72" fill="#eee"/><text x="36" y="40" text-anchor="middle" font-size="10" fill="#999">Error</text></svg>';
+        }
+        exit;
+    }
+}

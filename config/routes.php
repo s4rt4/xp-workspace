@@ -54,3 +54,39 @@ $router->get('/api/notes', 'NoteController@index');
 $router->post('/api/notes', 'NoteController@store');
 $router->put('/api/notes/{id}', 'NoteController@update');
 $router->delete('/api/notes/{id}', 'NoteController@destroy');
+
+// ── Todo List ─────────────────────────────────────────
+$router->get('/api/todos', 'TodoController@index');
+$router->post('/api/todos', 'TodoController@store');
+$router->delete('/api/todos/clear-done', 'TodoController@clearDone');
+$router->put('/api/todos/{id}', 'TodoController@update');
+$router->delete('/api/todos/{id}', 'TodoController@destroy');
+
+// ── API Keys Management ───────────────────────────────
+$router->get('/api/keys', 'ApiKeyController@index');
+$router->post('/api/keys', 'ApiKeyController@save');
+$router->put('/api/keys/{id}/toggle', 'ApiKeyController@toggle');
+$router->delete('/api/keys/{id}', 'ApiKeyController@destroy');
+
+// ── Weather ───────────────────────────────────────────
+$router->get('/api/weather', 'WeatherController@search');
+
+// ── Currency Converter ────────────────────────────────
+$router->post('/api/currency/convert', 'CurrencyController@convert');
+
+// ── Translator ────────────────────────────────────────
+$router->post('/api/translator/translate', 'TranslatorController@translate');
+
+// ── TV & Radio ────────────────────────────────────────
+$router->get('/api/tv/channels', 'MediaController@tvChannels');
+$router->get('/api/radio/stations', 'MediaController@radioStations');
+$router->post('/api/radio/stations', 'MediaController@radioStore');
+$router->put('/api/radio/stations/{id}', 'MediaController@radioUpdate');
+$router->delete('/api/radio/stations/{id}', 'MediaController@radioDestroy');
+
+// ── Proxy ─────────────────────────────────────────────
+$router->get('/api/proxy/avatar', 'ProxyController@avatar');
+
+// ── Hash Generator ────────────────────────────────────
+$router->post('/api/hash/generate', 'HashController@generate');
+$router->post('/api/hash/verify', 'HashController@verify');

@@ -140,6 +140,16 @@ CREATE TABLE IF NOT EXISTS notes (
     updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ── Todos (Simple Todo List) ───────────────────────────
+CREATE TABLE IF NOT EXISTS todos (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    text        VARCHAR(500) NOT NULL,
+    is_done     TINYINT(1) DEFAULT 0,
+    sort_order  INT DEFAULT 0,
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ── Activity Log ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS activity_log (
     id          INT AUTO_INCREMENT PRIMARY KEY,

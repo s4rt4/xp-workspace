@@ -22,7 +22,7 @@ const XP = {
         tasks:      'checklist.png',
         wiki:       'help-and-support.png',
         files:      'my-computer.png',
-        notes:      'notepad.png',
+        notes:      'stickynotes.png',
         calendar:   'date-and-time.png',
         contacts:   'address-book.png',
         default:    'generic-document.png',
@@ -60,7 +60,7 @@ const XP = {
 
         this.initSounds();
         this.initClock();
-        this.initStartMenu();
+        StartMenu.init();
         this.initDesktopIcons();
         this.initContextMenu();
         this.initGlobalEvents();
@@ -153,46 +153,7 @@ const XP = {
         setInterval(update, 30000);
     },
 
-    // ══════════════════════════════════════════════════════════
-    //  START MENU
-    // ══════════════════════════════════════════════════════════
-
-    initStartMenu() {
-        const btn = document.getElementById('start-button');
-        const menu = document.getElementById('start-menu');
-
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            menu.classList.toggle('visible');
-            this.playSound('menu');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!menu.contains(e.target) && e.target !== btn) {
-                menu.classList.remove('visible');
-            }
-        });
-
-        // Populate left panel with modules
-        const leftPanel = menu.querySelector('.start-menu-left');
-        if (this.config?.modules) {
-            leftPanel.innerHTML = '';
-            for (const [key, mod] of Object.entries(this.config.modules)) {
-                if (!mod.enabled) continue;
-                const item = document.createElement('div');
-                item.className = 'start-menu-item';
-                item.innerHTML = `
-                    <img src="${ICON_PATH}/${mod.icon}" onerror="this.src='${ICON_PATH}/generic-document.png'" alt="">
-                    <span>${mod.name}</span>
-                `;
-                item.addEventListener('click', () => {
-                    menu.classList.remove('visible');
-                    this.openApp(key);
-                });
-                leftPanel.appendChild(item);
-            }
-        }
-    },
+    // Start Menu is handled by StartMenu module (startmenu.js)
 
     // ══════════════════════════════════════════════════════════
     //  DESKTOP ICONS
@@ -457,7 +418,7 @@ const XP = {
                 </div>
                 <div class="context-menu-separator"></div>
                 <div class="context-menu-item" onclick="Apps.Notes.open()">
-                    <img src="${ICON_PATH}/notepad.png" alt=""> New Sticky Note
+                    <img src="${ICON_PATH}/stickynotes.png" alt=""> New Sticky Note
                 </div>
                 <div class="context-menu-separator"></div>
                 <div class="context-menu-item" onclick="XP.showThemePicker()">
@@ -480,12 +441,32 @@ const XP = {
 
     openApp(appId) {
         const launchers = {
-            dashboard: () => Apps.Dashboard.open(),
-            projects:  () => Apps.Projects.open(),
-            tasks:     () => Apps.Tasks.open(),
-            wiki:      () => Apps.Wiki.open(),
-            files:     () => Apps.Files.open(),
-            notes:     () => Apps.Notes.open(),
+            dashboard:  () => Apps.Dashboard.open(),
+            projects:   () => Apps.Projects.open(),
+            tasks:      () => Apps.Tasks.open(),
+            wiki:       () => Apps.Wiki.open(),
+            files:      () => Apps.Files.open(),
+            notes:      () => Apps.Notes.open(),
+            notepad:    () => Apps.Notepad.open(),
+            codeplay:   () => Apps.CodePlayground.open(),
+            vscoder:    () => Apps.VSCoder.open(),
+            filegen:    () => Apps.FileGenerator.open(),
+            csvviewer:  () => Apps.CSVViewer.open(),
+            pdfflipbook:() => Apps.PDFFlipbook.open(),
+            dummygen:   () => Apps.DummyGenerator.open(),
+            tvplayer:   () => Apps.TVPlayer.open(),
+            radio:      () => Apps.Radio.open(),
+            invoice:    () => Apps.Invoice.open(),
+            quran:      () => Apps.Quran.open(),
+            calculator: () => Apps.Calculator.open(),
+            weather:    () => Apps.Weather.open(),
+            currency:   () => Apps.Currency.open(),
+            translator: () => Apps.Translator.open(),
+            imagetools: () => Apps.ImageTools.open(),
+            todolist:   () => Apps.TodoList.open(),
+            piano:      () => Apps.Piano.open(),
+            tetris:     () => Apps.Tetris.open(),
+            hashgen:    () => Apps.HashGenerator.open(),
         };
         if (launchers[appId]) launchers[appId]();
         else this.notify('Application not available', `"${appId}" module is coming soon.`);
@@ -1200,7 +1181,7 @@ Apps.Notes = {
         el.style.cssText = `left:${note.pos_x}px;top:${note.pos_y}px;width:${note.width||250}px;height:${note.height||200}px;min-width:180px;min-height:120px;z-index:${++XP.zCounter}`;
         el.innerHTML = `
             <div class="title-bar" style="background:${note.color};min-height:22px;padding:2px 4px;cursor:move">
-                <img src="${ICON_PATH}/notepad.png" style="width:14px;height:14px" alt="">
+                <img src="${ICON_PATH}/stickynotes.png" style="width:14px;height:14px" alt="">
                 <div class="title-bar-text" style="color:#333;font-size:10px;text-shadow:none">Quick Note</div>
                 <div class="title-bar-controls">
                     <button aria-label="Close" onclick="Apps.Notes.deleteNote(${note.id},'${id}')"></button>

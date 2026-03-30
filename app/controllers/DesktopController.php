@@ -18,6 +18,7 @@ class DesktopController extends Controller
         
         $this->json([
             'modules'     => $config['modules'],
+            'categories'  => $config['categories'] ?? [],
             'preferences' => $preferences,
         ]);
     }

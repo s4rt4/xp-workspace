@@ -414,27 +414,32 @@ button, .xp-btn, .toolbar-btn, .desktop-icon, .start-menu-item, .taskbar-btn, .q
 
 .start-menu-body {
     display: flex;
-    min-height: 320px;
+    height: 380px;
 }
 
 .start-menu-left {
     flex: 1;
     background: #fff;
-    padding: 6px 0;
+    padding: 4px 0;
     border-right: 1px solid #d6d2c2;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .start-menu-right {
-    width: 180px;
+    width: 170px;
     background: var(--xp-start-menu-side);
     padding: 6px 0;
+    flex-shrink: 0;
+    overflow-y: auto;
 }
 
+/* Left panel items */
 .start-menu-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 12px;
+    padding: 5px 12px;
     cursor: url('../cursors/arrow_r.cur'), pointer;
     color: var(--xp-text);
     font-size: 11px;
@@ -450,17 +455,68 @@ button, .xp-btn, .toolbar-btn, .desktop-icon, .start-menu-item, .taskbar-btn, .q
     width: 32px;
     height: 32px;
     image-rendering: pixelated;
+    flex-shrink: 0;
 }
 
-.start-menu-right .start-menu-item {
+.start-menu-item .sm-pin-icon {
+    font-size: 10px;
+    margin-left: auto;
+    opacity: 0.5;
+}
+
+.start-menu-item.sm-pinned {
+    background: #f0f6ff;
+}
+
+.start-menu-item.sm-pinned:hover {
+    background: var(--xp-selection);
+    color: var(--xp-selection-text);
+}
+
+/* Section labels */
+.sm-section-label {
+    font-size: 10px;
+    font-weight: bold;
+    color: #888;
+    padding: 4px 12px 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sm-empty {
+    text-align: center;
+    padding: 30px 12px;
+    color: #999;
+    font-size: 11px;
+}
+
+/* Right panel categories */
+.start-menu-cat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    cursor: url('../cursors/arrow_r.cur'), pointer;
     color: #fff;
     font-size: 11px;
     font-weight: bold;
+    border: 1px solid transparent;
 }
 
-.start-menu-right .start-menu-item img {
+.start-menu-cat:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.start-menu-cat.active {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.15);
+}
+
+.start-menu-cat img {
     width: 24px;
     height: 24px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
 }
 
 .start-menu-separator {
@@ -473,13 +529,40 @@ button, .xp-btn, .toolbar-btn, .desktop-icon, .start-menu-item, .taskbar-btn, .q
     background: rgba(255,255,255,0.2);
 }
 
+/* Footer with search */
 .start-menu-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     gap: 8px;
-    padding: 6px 10px;
+    padding: 5px 8px;
     background: linear-gradient(180deg, #3a81d4 0%, #2a6ec4 100%);
     border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+.sm-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 3px;
+    padding: 2px 6px;
+    flex: 1;
+    max-width: 200px;
+}
+
+.sm-search-input {
+    border: none;
+    background: transparent;
+    font-family: var(--xp-font);
+    font-size: 11px;
+    outline: none;
+    width: 100%;
+    padding: 2px 0;
+    min-width: 0;
+    min-height: 0;
+    box-shadow: none;
+    cursor: text;
 }
 
 .start-menu-footer button {
@@ -502,6 +585,12 @@ button, .xp-btn, .toolbar-btn, .desktop-icon, .start-menu-item, .taskbar-btn, .q
 .start-menu-footer button:hover {
     background: rgba(255,255,255,0.25);
 }
+
+/* Scrollbar for left panel */
+.start-menu-left::-webkit-scrollbar { width: 12px; }
+.start-menu-left::-webkit-scrollbar-track { background: #f5f3e8; }
+.start-menu-left::-webkit-scrollbar-thumb { background: #c8c0ae; border: 1px solid #b4a898; }
+.start-menu-left::-webkit-scrollbar-thumb:hover { background: #b4a898; }
 
 /* ── XP Windows ───────────────────────────────────────── */
 .xp-window {

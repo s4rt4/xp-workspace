@@ -1,0 +1,42 @@
+-- Seed TV Channels
+INSERT IGNORE INTO tv_channels (name, url, logo, group_name, sort_order) VALUES
+('TVRI Nasional', 'https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8', 'logo_tv_tvri_nasional.png', 'TVRI', 1),
+('TVRI Sport', 'https://ott-balancer.tvri.go.id/live/eds/SportHD/hls/SportHD.m3u8', 'logo_tv_tvri_sport.png', 'TVRI', 2),
+('TVRI World', 'https://ott-balancer.tvri.go.id/live/eds/TVRIWorld/hls/TVRIWorld.m3u8', 'logo_tv_tvri_world.png', 'TVRI', 3),
+('TVRI DKI', 'https://ott-balancer.tvri.go.id/live/eds/DKI/hls/DKI.m3u8', 'logo_tv_tvri_dki.png', 'TVRI', 4),
+('TVRI Jabar', 'https://ott-balancer.tvri.go.id/live/eds/Jabar/hls/Jabar.m3u8', 'logo_tv_tvri_jabar.png', 'TVRI', 5),
+('TVRI Jateng', 'https://ott-balancer.tvri.go.id/live/eds/Jateng/hls/Jateng.m3u8', 'logo_tv_tvri_jateng.png', 'TVRI', 6),
+('TVRI Jatim', 'https://ott-balancer.tvri.go.id/live/eds/Jatim/hls/Jatim.m3u8', 'logo_tv_tvri_jatim.png', 'TVRI', 7),
+('TVRI Jogja', 'https://ott-balancer.tvri.go.id/live/eds/Jogjakarta/hls/Jogjakarta.m3u8', 'logo_tv_tvri_jogja.png', 'TVRI', 8),
+('TransTV', 'https://video.detik.com/transtv/smil:transtv.smil/playlist.m3u8', 'logo_tv_transtv.png', '', 10),
+('Trans7', 'https://video.detik.com/trans7/smil:trans7.smil/playlist.m3u8', 'logo_tv_trans7.png', '', 11),
+('CNN Indonesia', 'https://live.cnnindonesia.com/livecnn/smil:cnntv.smil/playlist.m3u8', 'logo_tv_cnn.png', '', 12),
+('CNBC Indonesia', 'https://live.cnbcindonesia.com/livecnbc/smil:cnbctv.smil/playlist.m3u8', 'logo_tv_cnbc.png', '', 13),
+('RTV', 'https://rtvstream.rtv.co.id:4555/hls/rtv.m3u8', 'logo_tv_rtv.png', '', 14),
+('Inspira TV', 'https://inspiratv.siar.us/inspiratv/live/playlist.m3u8', 'logo_tv_inspira.png', '', 15),
+('Quran TV (Makkah)', 'http://m.live.net.sa:1935/live/quran/playlist.m3u8', 'logo_tv_quran_mecca.png', '', 16);
+
+-- Seed Radio Stations (Indonesia)
+INSERT IGNORE INTO radio_stations (name, url, country, category) VALUES
+('80s Radio Hits','https://stream-037.zeno.fm/05eu8medd3quv?zs=nn3VmkBWSbuGUmPs4VtkyQ','Indonesia','local'),
+('Ardan Radio','https://n13.rcs.revma.com/ugpyzu9n5k3vv','Indonesia','local'),
+('Bahana Fm','https://s1.cloudmu.id/listen/bahana_fm/stream','Indonesia','local'),
+('Delta FM','https://s1.cloudmu.id/listen/delta_fm/stream','Indonesia','local'),
+('Elshinta','https://stream-ssl.arenastreaming.com:8000/jakarta','Indonesia','local'),
+('Gen FM 98.7 Jakarta','https://wz.mari.co.id:1936/web_genfm/genfm/playlist.m3u8','Indonesia','local'),
+('Hard Rock','https://n08.radiojar.com/7csmg90fuqruv.mp3','Indonesia','local'),
+('Jak 101 FM','https://wz.mari.co.id:1936/web_jakfm/jakfm/playlist.m3u8','Indonesia','local'),
+('Kiss FM','https://ic.mari.co.id:8443/kisfm','Indonesia','local'),
+('Prambors FM','https://s2.cloudmu.id/listen/prambors/stream','Indonesia','local'),
+('RRI Pro 1 Jakarta','https://stream-node1.rri.co.id/streaming/25/9025/rrijakartapro1.mp3','Indonesia','local'),
+('RRI Pro 2 Jakarta','https://stream-node1.rri.co.id/streaming/25/9025/rrijakartapro2.mp3','Indonesia','local'),
+('Sonora FM Jakarta','https://cast1.my-control-panel.com/proxy/radioso1/live','Indonesia','local'),
+('Trax FM','https://n0a.radiojar.com/rrqf78p3bnzuv','Indonesia','local'),
+('BBC Radio 1','http://stream.live.vc.bbcmedia.co.uk/bbc_radio_one','United Kingdom','international'),
+('BBC Radio 2','http://stream.live.vc.bbcmedia.co.uk/bbc_radio_two','United Kingdom','international'),
+('NPR News','https://npr-ice.streamguys1.com/live.mp3','United States','international'),
+('KEXP Seattle','http://live-mp3-128.kexp.org/kexp128.mp3','United States','international'),
+('NRJ France','http://cdn.nrjaudio.fm/audio1/fr/30001/mp3_128.mp3','France','international'),
+('Triple J','http://live-radio01.mediahubaustralia.com/2TJW/mp3/','Australia','international'),
+('Radio Italia','http://icecast.unitedradio.it/radioitalia','Italy','international'),
+('Antenne Bayern','http://mp3channels.webradio.antenne.de/antenne','Germany','international');

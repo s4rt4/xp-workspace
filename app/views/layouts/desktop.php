@@ -49,7 +49,7 @@
             ['app' => 'tasks',      'icon' => 'checklist.png',           'label' => 'Task Board'],
             ['app' => 'wiki',       'icon' => 'help-and-support.png',    'label' => 'Knowledge Base'],
             ['app' => 'files',      'icon' => 'my-computer.png',         'label' => 'File Manager'],
-            ['app' => 'notes',      'icon' => 'notepad.png',             'label' => 'Quick Notes'],
+            ['app' => 'notes',      'icon' => 'stickynotes.png',         'label' => 'Quick Notes'],
         ];
         foreach ($desktopIcons as $di):
         ?>
@@ -82,7 +82,7 @@
             <img src="<?= BASE_URL ?>/public/icons/help-and-support.png" alt="">
         </button>
         <button class="quick-launch-btn" onclick="Apps.Notes.open()" title="New Note">
-            <img src="<?= BASE_URL ?>/public/icons/notepad.png" alt="">
+            <img src="<?= BASE_URL ?>/public/icons/stickynotes.png" alt="">
         </button>
     </div>
 
@@ -106,45 +106,20 @@
     </div>
     <div class="start-menu-body">
         <div class="start-menu-left">
-            <!-- Populated by JS from config modules -->
+            <!-- Populated by StartMenu.js -->
         </div>
         <div class="start-menu-right">
-            <div class="start-menu-item" onclick="XP.openApp('dashboard')">
-                <img src="<?= BASE_URL ?>/public/icons/my-documents.png" alt="">
-                <span>Dashboard</span>
-            </div>
-            <div class="start-menu-item" onclick="XP.openApp('wiki')">
-                <img src="<?= BASE_URL ?>/public/icons/help-and-support.png" alt="">
-                <span>Knowledge Base</span>
-            </div>
-            <div class="start-menu-item" onclick="XP.openApp('files')">
-                <img src="<?= BASE_URL ?>/public/icons/my-computer.png" alt="">
-                <span>File Manager</span>
-            </div>
-            <div class="start-menu-separator"></div>
-            <div class="start-menu-item" onclick="XP.openApp('projects')">
-                <img src="<?= BASE_URL ?>/public/icons/briefcase.png" alt="">
-                <span>Projects</span>
-            </div>
-            <div class="start-menu-item" onclick="XP.openApp('tasks')">
-                <img src="<?= BASE_URL ?>/public/icons/checklist.png" alt="">
-                <span>Task Board</span>
-            </div>
-            <div class="start-menu-separator"></div>
-            <div class="start-menu-item" onclick="XP.showAbout()">
-                <img src="<?= BASE_URL ?>/public/icons/information.png" alt="">
-                <span>About</span>
-            </div>
+            <!-- Populated by StartMenu.js (categories) -->
         </div>
     </div>
     <div class="start-menu-footer">
-        <button onclick="XP.showThemePicker()">
-            <img src="<?= BASE_URL ?>/public/icons/appearance.png" alt="" style="width:16px;height:16px">
-            Themes
-        </button>
-        <button onclick="XP.notify('Log Off', 'This is a single-user workspace')">
-            <img src="<?= BASE_URL ?>/public/icons/logout.png" alt="" style="width:16px;height:16px" onerror="this.style.display='none'">
-            Log Off
+        <div class="sm-search-wrap">
+            <img src="<?= BASE_URL ?>/public/icons/search.png" alt="" style="width:14px;height:14px">
+            <input class="sm-search-input" id="sm-search" placeholder="Search apps..." type="text">
+        </div>
+        <button onclick="location.reload()">
+            <img src="<?= BASE_URL ?>/public/icons/restart.png" alt="" style="width:16px;height:16px" onerror="this.style.display='none'">
+            Refresh
         </button>
     </div>
 </div>
@@ -154,6 +129,28 @@
 
 <!-- ═══ Scripts ═══ -->
 <script src="<?= BASE_URL ?>/public/js/desktop.js"></script>
+<script src="<?= BASE_URL ?>/public/js/startmenu.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/notepad.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/codeplayground.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/vscoder.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/filegenerator.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/csvviewer.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/pdfflipbook.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/dummygenerator.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apikeys.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/weather.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/currency.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/translator.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/imagetools.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/calculator.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/todolist.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/piano.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/tetris.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/hashgenerator.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/tvplayer.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/radio.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/invoice.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/quran.js"></script>
 
 </body>
 </html>
