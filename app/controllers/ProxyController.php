@@ -2,6 +2,46 @@
 class ProxyController extends Controller
 {
     /**
+     * Proxy for equran.id API to avoid mixed content issues
+     */
+    public function quran(): void
+    {
+        $path = $_GET['path'] ?? '';
+        if (empty($path)) {
+            Response::error('Path required');
+            return;
+        }
+
+        // Whitelist allowed paths
+        $allowed = ['v2/surat', 'v2/tafsir', 'doa', 'v2/shalat'];
+        $ok = false;
+        foreach ($allowed as $prefix) {
+            if (str_starts_with($path, $prefix)) { $ok = true; break; }
+        }
+        if (!$ok) {
+            Response::error('Invalid path');
+            return;
+        }
+
+        $url = 'https://equran.id/api/' . $path;
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ]);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        header('Content-Type: application/json');
+        http_response_code($httpCode);
+        echo $response;
+        exit;
+    }
+
+    /**
      * Proxy for DiceBear avatar API to avoid mixed content issues
      */
     public function avatar(): void

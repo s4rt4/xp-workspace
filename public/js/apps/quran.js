@@ -17,7 +17,7 @@ Apps.Quran = {
     open() {
         XP.createWindow('quran', {
             title: 'Quran',
-            icon: 'help-and-support.png',
+            icon: 'quran.png',
             width: 850, height: 560,
             content: `
                 <style>
@@ -91,7 +91,7 @@ Apps.Quran = {
         const body = document.getElementById('qr-body');
         body.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Loading surahs...</div>';
         try {
-            const res = await fetch('https://equran.id/api/v2/surat');
+            const res = await fetch('${BASE_URL}/api/proxy/quran?path=v2/surat');
             const data = await res.json();
             const surahs = data.data || [];
             body.innerHTML = `<div class="qr-surah-grid">${surahs.map(s => `
@@ -109,7 +109,7 @@ Apps.Quran = {
         const body = document.getElementById('qr-body');
         body.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Loading...</div>';
         try {
-            const res = await fetch(`https://equran.id/api/v2/surat/${nomor}`);
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/surat/${nomor}`);
             const data = await res.json();
             const surah = data.data;
             this.currentSurah = surah;
@@ -138,7 +138,7 @@ Apps.Quran = {
 
     // ── Audio ──
     playAyah(surah, ayah) {
-        const url = `https://equran.id/api/v2/surat/${surah}`;
+        const url = `${BASE_URL}/api/proxy/quran?path=v2/surat/${surah}`;
         // Fetch surah to get audio URL for specific qari
         fetch(url).then(r => r.json()).then(data => {
             const ayahData = data.data.ayat.find(a => a.nomorAyat === ayah);
@@ -161,15 +161,16 @@ Apps.Quran = {
         const body = document.getElementById('qr-body');
         body.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Loading doa...</div>';
         try {
-            const res = await fetch('https://equran.id/api/doa');
-            const doas = await res.json();
-            body.innerHTML = (doas || []).map((d, i) => `
+            const res = await fetch('${BASE_URL}/api/proxy/quran?path=doa');
+            const json = await res.json();
+            const doas = json.data || json || [];
+            body.innerHTML = doas.map((d, i) => `
                 <div class="qr-doa-item" onclick="this.querySelector('.doa-detail').style.display=this.querySelector('.doa-detail').style.display==='none'?'block':'none'">
-                    <div class="doa-title">${i + 1}. ${esc(d.nama)}</div>
+                    <div class="doa-title">${i + 1}. ${esc(d.nama || d.judul || '')}</div>
                     <div class="doa-detail" style="display:none;margin-top:8px">
-                        <div style="font-family:'Amiri',serif;font-size:22px;text-align:right;direction:rtl;line-height:2;color:#1a472a;margin-bottom:6px">${d.arab || ''}</div>
-                        <div style="font-size:11px;color:#666;font-style:italic;margin-bottom:4px">${d.latin || ''}</div>
-                        <div style="font-size:12px;line-height:1.5">${d.artinya || ''}</div>
+                        <div style="font-family:'Amiri',serif;font-size:22px;text-align:right;direction:rtl;line-height:2;color:#1a472a;margin-bottom:6px">${d.ar || d.arab || ''}</div>
+                        <div style="font-size:11px;color:#666;font-style:italic;margin-bottom:4px">${d.latin || d.tr || ''}</div>
+                        <div style="font-size:12px;line-height:1.5">${d.idn || d.artinya || ''}</div>
                     </div>
                 </div>
             `).join('');
@@ -181,19 +182,38 @@ Apps.Quran = {
         const body = document.getElementById('qr-body');
         body.innerHTML = `<div style="padding:12px">
             <h3 style="font-size:13px;color:#003c74;margin-bottom:8px">Jadwal Shalat</h3>
-            <div style="display:flex;gap:8px;margin-bottom:12px">
-                <select class="xp-select" id="qr-kota" style="flex:1"><option>Loading cities...</option></select>
-                <button class="xp-btn xp-btn-primary" onclick="Apps.Quran._getShalat()">Get Schedule</button>
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+                <div style="flex:1">
+                    <label style="font-size:10px;color:#666">Provinsi</label>
+                    <select class="xp-select" id="qr-provinsi" style="width:100%" onchange="Apps.Quran._loadKota()"><option>Loading...</option></select>
+                </div>
+                <div style="flex:1">
+                    <label style="font-size:10px;color:#666">Kota</label>
+                    <select class="xp-select" id="qr-kota" style="width:100%"><option>Select provinsi first</option></select>
+                </div>
             </div>
-            <div id="qr-shalat-result"></div>
+            <button class="xp-btn xp-btn-primary" onclick="Apps.Quran._getShalat()">Get Schedule</button>
+            <div id="qr-shalat-result" style="margin-top:10px"></div>
         </div>`;
-        // Load cities
         try {
-            const res = await fetch('https://equran.id/api/v2/shalat/kota/semua');
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/shalat/provinsi`);
             const data = await res.json();
-            const sel = document.getElementById('qr-kota');
+            const sel = document.getElementById('qr-provinsi');
+            sel.innerHTML = (data.data || []).map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+            this._loadKota();
+        } catch { document.getElementById('qr-provinsi').innerHTML = '<option>Failed to load</option>'; }
+    },
+
+    async _loadKota() {
+        const prov = document.getElementById('qr-provinsi')?.value;
+        if (!prov) return;
+        const sel = document.getElementById('qr-kota');
+        sel.innerHTML = '<option>Loading...</option>';
+        try {
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/shalat/kabkota?provinsi=${encodeURIComponent(prov)}`);
+            const data = await res.json();
             sel.innerHTML = (data.data || []).map(k => `<option value="${k.id}">${esc(k.lokasi)}</option>`).join('');
-        } catch {}
+        } catch { sel.innerHTML = '<option>Failed to load</option>'; }
     },
 
     async _getShalat() {
@@ -201,12 +221,13 @@ Apps.Quran = {
         if (!kota) return;
         const today = new Date();
         const dateStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+        const el = document.getElementById('qr-shalat-result');
+        el.innerHTML = '<div style="color:#888">Loading...</div>';
         try {
-            const res = await fetch(`https://equran.id/api/v2/shalat/jadwal/${kota}/${dateStr}`);
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/shalat/jadwal/${kota}/${dateStr}`);
             const data = await res.json();
             const j = data.data?.jadwal;
-            if (!j) return;
-            const el = document.getElementById('qr-shalat-result');
+            if (!j) { el.innerHTML = '<div style="color:#888">No schedule data</div>'; return; }
             el.innerHTML = `<table class="xp-listview" style="width:100%">
                 <tr><th>Waktu</th><th>Jam</th></tr>
                 <tr><td>Subuh</td><td>${j.subuh}</td></tr>
@@ -216,7 +237,7 @@ Apps.Quran = {
                 <tr><td>Isya</td><td>${j.isya}</td></tr>
             </table>
             <div style="font-size:10px;color:#888;margin-top:6px">Tanggal: ${j.tanggal || dateStr}</div>`;
-        } catch { document.getElementById('qr-shalat-result').innerHTML = '<div style="color:red">Failed to load schedule</div>'; }
+        } catch { el.innerHTML = '<div style="color:red">Failed to load schedule</div>'; }
     },
 
     // ── Search ──
@@ -238,7 +259,7 @@ Apps.Quran = {
         const el = document.getElementById('qr-search-result');
         el.innerHTML = '<div style="color:#888">Searching...</div>';
         try {
-            const res = await fetch(`https://equran.id/api/v2/surat?keyword=${encodeURIComponent(q)}`);
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/surat?keyword=${encodeURIComponent(q)}`);
             const data = await res.json();
             const results = data.data || [];
             if (results.length === 0) { el.innerHTML = '<div style="color:#888">No results found</div>'; return; }

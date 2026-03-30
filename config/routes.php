@@ -85,6 +85,7 @@ $router->put('/api/radio/stations/{id}', 'MediaController@radioUpdate');
 $router->delete('/api/radio/stations/{id}', 'MediaController@radioDestroy');
 
 // ── Proxy ─────────────────────────────────────────────
+$router->get('/api/proxy/quran', 'ProxyController@quran');
 $router->get('/api/proxy/avatar', 'ProxyController@avatar');
 
 // ── Hash Generator ────────────────────────────────────

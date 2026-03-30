@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/laragon/www/File_Generator/**)",
+      "Read(//c/laragon/www/Mini_Text_Editor/**)"
+    ]
+  }
+}

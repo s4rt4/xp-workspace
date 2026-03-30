@@ -42,7 +42,7 @@ Apps.TVPlayer = {
 
         XP.createWindow('tvplayer', {
             title: 'TV Player',
-            icon: 'windows-media-player-10.png',
+            icon: 'tv.png',
             width: 800, height: 500,
             content: `
                 <style>
@@ -72,9 +72,9 @@ Apps.TVPlayer = {
     },
 
     _chItem(ch) {
-        const logo = ch.logo ? `${IMG_PATH}/${ch.logo}` : `${ICON_PATH}/windows-media-player-10.png`;
+        const logo = ch.logo ? `${IMG_PATH}/${ch.logo}` : `${ICON_PATH}/tv.png`;
         return `<div class="tv-ch" data-id="${ch.id}" onclick="Apps.TVPlayer.play(${ch.id},'${esc(ch.url)}','${esc(ch.name)}')">
-            <img src="${logo}" onerror="this.src='${ICON_PATH}/windows-media-player-10.png'" alt="">
+            <img src="${logo}" onerror="this.src='${ICON_PATH}/tv.png'" alt="">
             <span>${esc(ch.name)}</span>
         </div>`;
     },

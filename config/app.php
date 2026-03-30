@@ -50,14 +50,14 @@ return [
         'translator' => ['name' => 'Translator',       'icon' => 'translator.png',         'enabled' => true,  'category' => 'utilities'],
         'imagetools' => ['name' => 'Image Tools',      'icon' => 'images-tool.png',        'enabled' => true,  'category' => 'utilities'],
         // ── Media & Games ──
-        'tvplayer'   => ['name' => 'TV Player',        'icon' => 'windows-media-player-10.png', 'enabled' => true, 'category' => 'media'],
-        'radio'      => ['name' => 'Radio',            'icon' => 'audio-cd.png',           'enabled' => true,  'category' => 'media'],
+        'tvplayer'   => ['name' => 'TV Player',        'icon' => 'tv.png',                 'enabled' => true,  'category' => 'media'],
+        'radio'      => ['name' => 'Radio',            'icon' => 'radio.png',              'enabled' => true,  'category' => 'media'],
         'piano'      => ['name' => 'Piano',            'icon' => 'piano.png',              'enabled' => true,  'category' => 'media'],
         'tetris'     => ['name' => 'Tetris',           'icon' => 'tetris.png',             'enabled' => true,  'category' => 'media'],
         // ── Productivity (extra) ──
-        'invoice'    => ['name' => 'Invoice Sorter',   'icon' => 'generic-document.png',   'enabled' => true,  'category' => 'productivity'],
+        'invoice'    => ['name' => 'Invoice Sorter',   'icon' => 'invoice.png',            'enabled' => true,  'category' => 'productivity'],
         // ── Islamic ──
-        'quran'      => ['name' => 'Quran',            'icon' => 'help-and-support.png',   'enabled' => true,  'category' => 'workspace'],
+        'quran'      => ['name' => 'Quran',            'icon' => 'quran.png',              'enabled' => true,  'category' => 'workspace'],
         // ── Planned ──
         'calendar'   => ['name' => 'Calendar',         'icon' => 'date-and-time.png',      'enabled' => false, 'category' => 'utilities'],
         'contacts'   => ['name' => 'Contacts',         'icon' => 'address-book.png',       'enabled' => false, 'category' => 'workspace'],

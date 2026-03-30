@@ -96,6 +96,7 @@ html, body {
 a { cursor: url('../cursors/3dglink.ani'), url('../cursors/arrow_r.cur'), pointer; }
 * { cursor: inherit; }
 input, textarea, select { cursor: url('../cursors/beam_r.cur'), text; }
+input[type="range"] { cursor: url('../cursors/3dgmove.cur'), grab; }
 button, .xp-btn, .toolbar-btn, .desktop-icon, .start-menu-item, .taskbar-btn, .quick-launch-btn {
     cursor: url('../cursors/arrow_r.cur'), pointer;
 }

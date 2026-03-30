@@ -21,7 +21,7 @@ Apps.Radio = {
     async _createWindow() {
         XP.createWindow('radio', {
             title: 'Radio',
-            icon: 'audio-cd.png',
+            icon: 'radio.png',
             width: 500, height: 440,
             toolbar: `
                 <button class="toolbar-btn" onclick="Apps.Radio.showAddDialog()"><img src="${ICON_PATH}/add.png" style="width:16px;height:16px" alt=""> Add Station</button>
@@ -100,27 +100,54 @@ Apps.Radio = {
         document.getElementById('radio-status').textContent = `${this.stations.length} station(s)`;
     },
 
+    _setStatus(text, type) {
+        const el = document.getElementById('radio-status');
+        if (!el) return;
+        const colors = { connecting: '#e68a00', playing: '#27ae60', paused: '#3498db', error: '#c0392b', idle: '#666' };
+        el.innerHTML = `<span style="color:${colors[type] || '#666'}">● ${text}</span>`;
+    },
+
     playIdx(idx) {
         if (idx < 0 || idx >= this.stations.length) return;
         this.currentIdx = idx;
         const s = this.stations[idx];
-        this._playUrl(s.url);
         document.getElementById('rp-name').textContent = s.name;
         document.getElementById('rp-country').textContent = s.country;
         document.getElementById('radio-play-btn').textContent = '⏸';
+        this._setStatus(`Connecting to ${s.name}...`, 'connecting');
+        this._playUrl(s.url, s.name);
         this._renderList();
     },
 
-    _playUrl(url) {
+    _playUrl(url, name) {
         if (this.hls) { this.hls.destroy(); this.hls = null; }
+
+        // Remove old listeners
+        if (this.audio) {
+            this.audio.onplaying = null;
+            this.audio.onerror = null;
+            this.audio.onwaiting = null;
+            this.audio.onstalled = null;
+        }
+
+        // Attach status listeners
+        this.audio.onplaying = () => this._setStatus(`Playing — ${name || 'Unknown'}`, 'playing');
+        this.audio.onpause = () => this._setStatus(`Paused — ${name || 'Unknown'}`, 'paused');
+        this.audio.onwaiting = () => this._setStatus('Buffering...', 'connecting');
+        this.audio.onstalled = () => this._setStatus('Buffering...', 'connecting');
+        this.audio.onerror = () => this._setStatus('Connection failed', 'error');
+
         if (url.includes('.m3u8') && typeof Hls !== 'undefined' && Hls.isSupported()) {
             this.hls = new Hls();
             this.hls.loadSource(url);
             this.hls.attachMedia(this.audio);
             this.hls.on(Hls.Events.MANIFEST_PARSED, () => this.audio.play());
+            this.hls.on(Hls.Events.ERROR, (_, data) => {
+                if (data.fatal) this._setStatus('Connection failed', 'error');
+            });
         } else {
             this.audio.src = url;
-            this.audio.play().catch(() => {});
+            this.audio.play().catch(() => this._setStatus('Connection failed', 'error'));
         }
     },
 

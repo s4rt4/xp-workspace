@@ -8,7 +8,7 @@ Apps.Invoice = {
     open() {
         XP.createWindow('invoice', {
             title: 'Invoice Sorter',
-            icon: 'generic-document.png',
+            icon: 'invoice.png',
             width: 850, height: 520,
             toolbar: `
                 <button class="toolbar-btn" onclick="Apps.Invoice.loadFolder()"><img src="${ICON_PATH}/folder-opened.png" style="width:16px;height:16px" alt=""> Open Folder</button>
