@@ -150,6 +150,41 @@ CREATE TABLE IF NOT EXISTS todos (
     updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ── API Keys ───────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS api_keys (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    app         VARCHAR(50) NOT NULL,
+    provider    VARCHAR(50) NOT NULL,
+    api_key     VARCHAR(500) NOT NULL,
+    extra       JSON DEFAULT NULL,
+    is_active   TINYINT(1) DEFAULT 1,
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_app_provider (app, provider)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ── TV Channels ────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS tv_channels (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(255) NOT NULL,
+    url         VARCHAR(500) NOT NULL,
+    logo        VARCHAR(255) DEFAULT '',
+    group_name  VARCHAR(100) DEFAULT '',
+    is_active   TINYINT(1) DEFAULT 1,
+    sort_order  INT DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ── Radio Stations ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS radio_stations (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(255) NOT NULL,
+    url         VARCHAR(500) NOT NULL,
+    country     VARCHAR(100) DEFAULT 'Indonesia',
+    category    VARCHAR(50) DEFAULT 'local',
+    is_active   TINYINT(1) DEFAULT 1,
+    sort_order  INT DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ── Activity Log ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS activity_log (
     id          INT AUTO_INCREMENT PRIMARY KEY,

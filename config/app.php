@@ -34,6 +34,7 @@ return [
         'files'      => ['name' => 'File Manager',     'icon' => 'my-computer.png',        'enabled' => true,  'category' => 'workspace'],
         'notes'      => ['name' => 'Quick Notes',      'icon' => 'stickynotes.png',        'enabled' => true,  'category' => 'workspace'],
         'todolist'   => ['name' => 'Todo List',        'icon' => 'to-do-list.png',         'enabled' => true,  'category' => 'workspace'],
+        'pomodoro'   => ['name' => 'Pomodoro Timer',   'icon' => 'scheduled-tasks.png',    'enabled' => true,  'category' => 'workspace'],
         // ── Productivity ──
         'notepad'    => ['name' => 'Notepad',          'icon' => 'notepad.png',            'enabled' => true,  'category' => 'productivity'],
         'codeplay'   => ['name' => 'Code Playground',  'icon' => 'code-playground.png',    'enabled' => true,  'category' => 'productivity'],
@@ -49,11 +50,21 @@ return [
         'currency'   => ['name' => 'Currency Converter','icon' => 'currency-converter.png','enabled' => true,  'category' => 'utilities'],
         'translator' => ['name' => 'Translator',       'icon' => 'translator.png',         'enabled' => true,  'category' => 'utilities'],
         'imagetools' => ['name' => 'Image Tools',      'icon' => 'images-tool.png',        'enabled' => true,  'category' => 'utilities'],
+        'imageeditor'=> ['name' => 'Image Editor',    'icon' => 'paint.png',              'enabled' => true,  'category' => 'utilities'],
+        'colorpicker'=> ['name' => 'Color Picker',    'icon' => 'color-profile.png',      'enabled' => true,  'category' => 'utilities'],
+        'jsonformat' => ['name' => 'JSON Formatter',   'icon' => 'java-script.png',        'enabled' => true,  'category' => 'utilities'],
+        'regextester'=> ['name' => 'Regex Tester',     'icon' => 'graph-view.png',         'enabled' => true,  'category' => 'utilities'],
+        'base64tool' => ['name' => 'Base64 Encoder',   'icon' => 'key.png',                'enabled' => true,  'category' => 'utilities'],
+        'diffviewer' => ['name' => 'Diff Viewer',      'icon' => 'detail-view.png',        'enabled' => true,  'category' => 'utilities'],
+        'timestamp'  => ['name' => 'Unix Timestamp',   'icon' => 'date-and-time.png',      'enabled' => true,  'category' => 'utilities'],
         // ── Media & Games ──
         'tvplayer'   => ['name' => 'TV Player',        'icon' => 'tv.png',                 'enabled' => true,  'category' => 'media'],
         'radio'      => ['name' => 'Radio',            'icon' => 'radio.png',              'enabled' => true,  'category' => 'media'],
+        'musicplayer'=> ['name' => 'Music Player',     'icon' => 'windows-media-player-9.png', 'enabled' => true,  'category' => 'media'],
+        'videoplayer'=> ['name' => 'Video Player',     'icon' => 'windows-movie-maker.png','enabled' => true,  'category' => 'media'],
         'piano'      => ['name' => 'Piano',            'icon' => 'piano.png',              'enabled' => true,  'category' => 'media'],
         'tetris'     => ['name' => 'Tetris',           'icon' => 'tetris.png',             'enabled' => true,  'category' => 'media'],
+        'paint'      => ['name' => 'Paint',            'icon' => 'paint.png',              'enabled' => true,  'category' => 'media'],
         // ── Productivity (extra) ──
         'invoice'    => ['name' => 'Invoice Sorter',   'icon' => 'invoice.png',            'enabled' => true,  'category' => 'productivity'],
         // ── Islamic ──

@@ -332,8 +332,8 @@ button, .xp-btn, .toolbar-btn, .desktop-icon, .start-menu-item, .taskbar-btn, .q
 .system-tray {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 0 10px;
+    gap: 0;
+    padding: 0 10px 0 4px;
     height: 100%;
     background: linear-gradient(180deg, rgba(24,55,120,0.3) 0%, rgba(18,48,105,0.4) 100%);
     border-left: 2px solid rgba(255,255,255,0.1);
@@ -341,22 +341,169 @@ button, .xp-btn, .toolbar-btn, .desktop-icon, .start-menu-item, .taskbar-btn, .q
     color: #fff;
 }
 
+/* Expand arrow — opens overflow popup */
+.tray-expand {
+    font-size: 9px;
+    cursor: pointer;
+    padding: 2px 4px;
+    color: rgba(255,255,255,0.5);
+    user-select: none;
+    border-radius: 2px;
+    margin-right: 4px;
+}
+.tray-expand:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
+/* Hidden icons container — NOT inline, shown in popup */
+.tray-icons-hidden { display: none; }
+
+/* Visible icons row */
+.tray-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 6px;
+}
+
+/* Separator between icons and clock */
+.tray-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255,255,255,0.15);
+    margin: 0 6px;
+}
+
 .tray-icon {
     width: 16px;
     height: 16px;
     cursor: url('../cursors/arrow_r.cur'), pointer;
-    opacity: 0.9;
+    opacity: 0.85;
     image-rendering: pixelated;
+    padding: 2px;
+    border-radius: 3px;
+    transition: all .15s;
 }
 
 .tray-icon:hover {
     opacity: 1;
+    background: rgba(255,255,255,0.12);
 }
+
+.tray-icon.tray-blink {
+    animation: trayBlink 1s infinite;
+}
+@keyframes trayBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.tray-badge {
+    position: relative;
+    display: inline-flex;
+}
+.tray-badge::after {
+    content: attr(data-badge);
+    position: absolute;
+    top: -4px; right: -5px;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 8px;
+    font-weight: bold;
+    min-width: 10px;
+    height: 10px;
+    line-height: 10px;
+    text-align: center;
+    border-radius: 5px;
+    padding: 0 2px;
+}
+
+/* ── Tray Overflow Popup (Win 11 style) ─────────────────── */
+.tray-overflow-popup {
+    position: fixed;
+    bottom: 38px;
+    right: 4px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+    z-index: 99999;
+    padding: 12px;
+    min-width: 180px;
+    animation: trayPopIn .15s ease-out;
+}
+@keyframes trayPopIn {
+    from { opacity:0; transform:translateY(8px); }
+    to { opacity:1; transform:translateY(0); }
+}
+.tray-overflow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 36px);
+    gap: 4px;
+    justify-content: center;
+}
+.tray-overflow-item {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .12s;
+}
+.tray-overflow-item:hover {
+    background: #f0f0f0;
+}
+.tray-overflow-item img {
+    width: 18px;
+    height: 18px;
+    image-rendering: pixelated;
+}
+.tray-overflow-label {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #eee;
+}
+
+/* ── Tray Popup (item-specific, e.g. Volume, Network) ──── */
+.tray-popup {
+    position: fixed;
+    bottom: 38px;
+    right: 4px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+    font-size: 12px;
+    z-index: 99999;
+    min-width: 240px;
+    max-width: 320px;
+    color: #222;
+    overflow: hidden;
+    animation: trayPopIn .15s ease-out;
+}
+.tray-popup-header {
+    background: linear-gradient(180deg, #0a246a, #3a6ea5);
+    color: #fff;
+    padding: 8px 12px;
+    font-weight: bold;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.tray-popup-header img { width: 16px; height: 16px; }
+.tray-popup-body { padding: 12px; }
+.tray-popup-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.tray-popup-row label { font-weight: 600; color: #555; width: 60px; font-size: 11px; }
+.tray-popup-sep { border-top: 1px solid #eee; margin: 8px 0; }
 
 #tray-clock {
     font-size: 11px;
     white-space: nowrap;
     text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+    padding-left: 8px;
+    cursor: pointer;
 }
 
 /* ── Start Menu ────────────────────────────────────────── */
