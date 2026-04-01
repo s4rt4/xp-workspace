@@ -67,6 +67,7 @@ const XP = {
         this.initGlobalEvents();
         this.initWallpaper();
         DesktopWidgets.init();
+        if (typeof Apps.StartupManager !== 'undefined') Apps.StartupManager.runStartupApps();
 
         // Boot animation — wait for loading, then require a click to dismiss
         // (browsers block autoplay audio without user interaction)
@@ -878,6 +879,9 @@ const XP = {
             jsonformat:  () => Apps.JSONFormatter.open(),
             pomodoro:    () => Apps.Pomodoro.open(),
             paint:       () => Apps.Paint.open(),
+            svgeditor:   () => Apps.SVGEditor.open(),
+            pixelart:    () => Apps.PixelArt.open(),
+            wireframe:   () => Apps.Wireframe.open(),
             regextester: () => Apps.RegexTester.open(),
             base64tool:  () => Apps.Base64Tool.open(),
             diffviewer:  () => Apps.DiffViewer.open(),
@@ -887,7 +891,25 @@ const XP = {
             todolist:   () => Apps.TodoList.open(),
             piano:      () => Apps.Piano.open(),
             tetris:     () => Apps.Tetris.open(),
+            minesweeper:() => Apps.Minesweeper.open(),
+            snake:      () => Apps.Snake.open(),
+            game2048:   () => Apps.Game2048.open(),
+            tictactoe:  () => Apps.TicTacToe.open(),
+            memorycard: () => Apps.MemoryCard.open(),
+            solitaire:  () => Apps.Solitaire.open(),
+            breakout:   () => Apps.Breakout.open(),
+            sudoku:     () => Apps.Sudoku.open(),
+            wordle:     () => Apps.Wordle.open(),
+            pong:       () => Apps.Pong.open(),
             hashgen:    () => Apps.HashGenerator.open(),
+            display:    () => XP.showThemePicker(),
+            systeminfo: () => Apps.SystemInfo.open(),
+            startup:    () => Apps.StartupManager.open(),
+            storage:    () => Apps.StorageManager.open(),
+            activitylog:() => Apps.ActivityLog.open(),
+            backup:     () => Apps.BackupRestore.open(),
+            apikeys:    () => { const w = document.getElementById('window-apikeys'); if (w) { XP.focusWindow('apikeys'); return; } XP.createWindow('apikeys', { title: 'API Keys', icon: 'key.png', width: 600, height: 400, content: '<div id="ak-body" style="padding:8px">Loading...</div>', onReady: () => { if (typeof ApiKeyManager !== 'undefined') ApiKeyManager.init(); } }); },
+            about:      () => XP.showAbout(),
         };
         if (launchers[appId]) launchers[appId]();
         else this.notify('Application not available', `"${appId}" module is coming soon.`);
