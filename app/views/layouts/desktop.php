@@ -140,6 +140,7 @@
 <!-- ═══ Scripts ═══ -->
 <script src="<?= BASE_URL ?>/public/js/desktop.js"></script>
 <script src="<?= BASE_URL ?>/public/js/startmenu.js"></script>
+<script src="<?= BASE_URL ?>/public/js/widgets.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/notepad.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/codeplayground.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/vscoder.js"></script>

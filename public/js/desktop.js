@@ -66,6 +66,7 @@ const XP = {
         this.initContextMenu();
         this.initGlobalEvents();
         this.initWallpaper();
+        DesktopWidgets.init();
 
         // Boot animation — wait for loading, then require a click to dismiss
         // (browsers block autoplay audio without user interaction)
@@ -73,14 +74,18 @@ const XP = {
             const bs = document.getElementById('boot-screen');
             if (!bs) return;
             const sub = bs.querySelector('.boot-subtitle');
-            if (sub) sub.textContent = 'Click anywhere to start';
+            if (sub) sub.textContent = 'Click anywhere or press Enter to start';
             bs.querySelector('.boot-progress').style.display = 'none';
             bs.style.cursor = 'pointer';
-            bs.addEventListener('click', () => {
+            const dismiss = () => {
                 this.playSound('startup');
                 bs.classList.add('fade-out');
                 setTimeout(() => bs.remove(), 700);
-            }, { once: true });
+                document.removeEventListener('keydown', onKey);
+            };
+            const onKey = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dismiss(); } };
+            bs.addEventListener('click', dismiss, { once: true });
+            document.addEventListener('keydown', onKey);
         }, 2500);
     },
 
@@ -794,6 +799,22 @@ const XP = {
                 <div class="context-menu-separator"></div>
                 <div class="context-menu-item" onclick="Apps.Notes.open()">
                     <img src="${ICON_PATH}/stickynotes.png" alt=""> New Sticky Note
+                </div>
+                <div class="context-menu-separator"></div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('clock')">
+                    <img src="${ICON_PATH}/date-and-time.png" alt=""> Add Clock Widget
+                </div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('weather')">
+                    <img src="${ICON_PATH}/weather.png" alt=""> Add Weather Widget
+                </div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('calendar')">
+                    <img src="${ICON_PATH}/date-and-time.png" alt=""> Add Calendar Widget
+                </div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('netspeed')">
+                    <img src="${ICON_PATH}/network-connection.png" alt=""> Add Network Speed Widget
+                </div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('sysmonitor')">
+                    <img src="${ICON_PATH}/display-adaptor.png" alt=""> Add System Monitor Widget
                 </div>
                 <div class="context-menu-separator"></div>
                 <div class="context-menu-item" onclick="XP.showThemePicker()">
