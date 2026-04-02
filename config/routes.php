@@ -27,20 +27,20 @@ $router->delete('/api/projects/{id}', 'ProjectController@destroy');
 // ── Tasks ──────────────────────────────────────────────
 $router->get('/api/tasks', 'TaskController@index');
 $router->post('/api/tasks', 'TaskController@store');
+$router->get('/api/tasks/board/{projectId}', 'TaskController@board');
 $router->get('/api/tasks/{id}', 'TaskController@show');
 $router->put('/api/tasks/{id}', 'TaskController@update');
 $router->delete('/api/tasks/{id}', 'TaskController@destroy');
 $router->put('/api/tasks/{id}/move', 'TaskController@move');
-$router->get('/api/tasks/board/{projectId}', 'TaskController@board');
 
 // ── Wiki / Knowledge Base ──────────────────────────────
 $router->get('/api/wiki', 'WikiController@index');
 $router->post('/api/wiki', 'WikiController@store');
+$router->get('/api/wiki/tree', 'WikiController@tree');
+$router->get('/api/wiki/search', 'WikiController@search');
 $router->get('/api/wiki/{id}', 'WikiController@show');
 $router->put('/api/wiki/{id}', 'WikiController@update');
 $router->delete('/api/wiki/{id}', 'WikiController@destroy');
-$router->get('/api/wiki/tree', 'WikiController@tree');
-$router->get('/api/wiki/search', 'WikiController@search');
 
 // ── Files ──────────────────────────────────────────────
 $router->get('/api/files', 'FileController@index');
@@ -86,6 +86,7 @@ $router->delete('/api/radio/stations/{id}', 'MediaController@radioDestroy');
 
 // ── Proxy ─────────────────────────────────────────────
 $router->get('/api/proxy/quran', 'ProxyController@quran');
+$router->post('/api/proxy/quran', 'ProxyController@quran');
 $router->get('/api/proxy/avatar', 'ProxyController@avatar');
 
 // ── Hash Generator ────────────────────────────────────

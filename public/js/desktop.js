@@ -59,12 +59,15 @@ const XP = {
         }
 
         this.initSounds();
+        this.SystemTray.init();
         this.initClock();
         StartMenu.init();
         this.initDesktopIcons();
         this.initContextMenu();
         this.initGlobalEvents();
         this.initWallpaper();
+        DesktopWidgets.init();
+        if (typeof Apps.StartupManager !== 'undefined') Apps.StartupManager.runStartupApps();
 
         // Boot animation — wait for loading, then require a click to dismiss
         // (browsers block autoplay audio without user interaction)
@@ -72,14 +75,18 @@ const XP = {
             const bs = document.getElementById('boot-screen');
             if (!bs) return;
             const sub = bs.querySelector('.boot-subtitle');
-            if (sub) sub.textContent = 'Click anywhere to start';
+            if (sub) sub.textContent = 'Click anywhere or press Enter to start';
             bs.querySelector('.boot-progress').style.display = 'none';
             bs.style.cursor = 'pointer';
-            bs.addEventListener('click', () => {
+            const dismiss = () => {
                 this.playSound('startup');
                 bs.classList.add('fade-out');
                 setTimeout(() => bs.remove(), 700);
-            }, { once: true });
+                document.removeEventListener('keydown', onKey);
+            };
+            const onKey = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dismiss(); } };
+            bs.addEventListener('click', dismiss, { once: true });
+            document.addEventListener('keydown', onKey);
         }, 2500);
     },
 
@@ -128,6 +135,8 @@ const XP = {
 
     toggleSound() {
         this.soundEnabled = !this.soundEnabled;
+        const icon = document.getElementById('tray-icon-volume');
+        if (icon) icon.src = ICON_PATH + '/' + (this.soundEnabled ? 'volume.png' : 'volume-alt.png');
         this.notify(this.soundEnabled ? 'Sound On' : 'Sound Off',
                     this.soundEnabled ? 'Sound effects enabled' : 'Sound effects muted');
     },
@@ -141,19 +150,345 @@ const XP = {
     //  CLOCK
     // ══════════════════════════════════════════════════════════
 
+    _clockSettings: null,
+
     initClock() {
+        // Load saved settings
+        try { this._clockSettings = JSON.parse(localStorage.getItem('xp_clock_settings')); } catch {}
+        if (!this._clockSettings) this._clockSettings = { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, hour12: true, seconds: false };
+
         const el = document.getElementById('tray-clock');
+        el.style.cursor = 'pointer';
+        el.title = 'Click to open clock settings';
+        el.addEventListener('click', (e) => { e.stopPropagation(); this._toggleClockPopup(); });
+
         const update = () => {
-            const now = new Date();
-            el.textContent = now.toLocaleTimeString('en-US', {
-                hour: '2-digit', minute: '2-digit', hour12: true
-            });
+            const s = this._clockSettings;
+            const opts = { hour: '2-digit', minute: '2-digit', hour12: s.hour12, timeZone: s.timezone };
+            if (s.seconds) opts.second = '2-digit';
+            try {
+                el.textContent = new Date().toLocaleTimeString('en-US', opts);
+            } catch { el.textContent = new Date().toLocaleTimeString(); }
         };
         update();
-        setInterval(update, 30000);
+        setInterval(update, 1000);
+
+        // Close popup on outside click
+        document.addEventListener('click', (e) => {
+            const popup = document.getElementById('clock-popup');
+            if (popup && !popup.contains(e.target) && e.target !== el) popup.remove();
+        });
+    },
+
+    _saveClockSettings() {
+        localStorage.setItem('xp_clock_settings', JSON.stringify(this._clockSettings));
+    },
+
+    _toggleClockPopup() {
+        let popup = document.getElementById('clock-popup');
+        if (popup) { popup.remove(); return; }
+
+        const s = this._clockSettings;
+        const tzList = [
+            ['Pacific/Midway','UTC-11 Midway'],['Pacific/Honolulu','UTC-10 Honolulu'],['America/Anchorage','UTC-9 Anchorage'],
+            ['America/Los_Angeles','UTC-8 Los Angeles'],['America/Denver','UTC-7 Denver'],['America/Chicago','UTC-6 Chicago'],
+            ['America/New_York','UTC-5 New York'],['America/Sao_Paulo','UTC-3 Sao Paulo'],['Atlantic/Reykjavik','UTC+0 Reykjavik'],
+            ['Europe/London','UTC+0 London'],['Europe/Paris','UTC+1 Paris'],['Europe/Berlin','UTC+1 Berlin'],
+            ['Europe/Moscow','UTC+3 Moscow'],['Asia/Dubai','UTC+4 Dubai'],['Asia/Karachi','UTC+5 Karachi'],
+            ['Asia/Kolkata','UTC+5:30 Kolkata'],['Asia/Dhaka','UTC+6 Dhaka'],['Asia/Bangkok','UTC+7 Bangkok'],
+            ['Asia/Jakarta','UTC+7 Jakarta'],['Asia/Makassar','UTC+8 Makassar'],['Asia/Shanghai','UTC+8 Shanghai'],
+            ['Asia/Singapore','UTC+8 Singapore'],['Asia/Tokyo','UTC+9 Tokyo'],['Asia/Jayapura','UTC+9 Jayapura'],
+            ['Australia/Sydney','UTC+10 Sydney'],['Pacific/Auckland','UTC+12 Auckland'],
+        ];
+
+        popup = document.createElement('div');
+        popup.id = 'clock-popup';
+        popup.innerHTML = `
+            <style>
+                #clock-popup {
+                    position:fixed; bottom:36px; right:4px; width:280px;
+                    background:#ece9d8; border:2px outset #fff; box-shadow:2px 2px 8px rgba(0,0,0,0.3);
+                    font-size:11px; z-index:99999; border-radius:3px;
+                }
+                .cp-header { background:linear-gradient(180deg,#0a246a,#3a6ea5); color:#fff; padding:5px 8px; font-weight:bold; font-size:11px; display:flex; align-items:center; gap:6px; }
+                .cp-header img { width:16px; height:16px; }
+                .cp-clock-display { text-align:center; padding:10px; background:#fff; margin:6px; border:1px inset #999; }
+                .cp-clock-time { font-size:32px; font-weight:bold; font-family:Consolas,'Courier New',monospace; color:#000; }
+                .cp-clock-date { font-size:11px; color:#666; margin-top:2px; }
+                .cp-clock-tz { font-size:10px; color:#888; }
+                .cp-body { padding:6px 8px 8px; }
+                .cp-row { display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+                .cp-row label { width:70px; font-weight:bold; color:#444; }
+                .cp-row select, .cp-row input { flex:1; }
+                .cp-checks { display:flex; gap:12px; margin:6px 0; }
+                .cp-checks label { display:flex; align-items:center; gap:4px; cursor:pointer; font-weight:normal; width:auto; }
+                .cp-sep { border-top:1px solid #d4d0c8; margin:8px 0; }
+            </style>
+            <div class="cp-header">
+                <img src="${ICON_PATH}/date-and-time.png" onerror="this.style.display='none'" alt="">
+                Date and Time Properties
+            </div>
+            <div class="cp-clock-display">
+                <div class="cp-clock-time" id="cp-live-time">--:--:--</div>
+                <div class="cp-clock-date" id="cp-live-date"></div>
+                <div class="cp-clock-tz" id="cp-live-tz">${s.timezone}</div>
+            </div>
+            <div class="cp-body">
+                <div class="cp-row">
+                    <label>Timezone</label>
+                    <select class="xp-select" id="cp-tz" onchange="XP._onClockChange()">
+                        ${tzList.map(([tz, label]) => `<option value="${tz}"${tz === s.timezone ? ' selected' : ''}>${label}</option>`).join('')}
+                    </select>
+                </div>
+                <div class="cp-sep"></div>
+                <div class="cp-row">
+                    <label>Format</label>
+                    <div class="cp-checks">
+                        <label><input type="radio" name="cp-fmt" value="12" ${s.hour12 ? 'checked' : ''} onchange="XP._onClockChange()"> 12 Hour</label>
+                        <label><input type="radio" name="cp-fmt" value="24" ${!s.hour12 ? 'checked' : ''} onchange="XP._onClockChange()"> 24 Hour</label>
+                    </div>
+                </div>
+                <div class="cp-row">
+                    <label>Seconds</label>
+                    <div class="cp-checks">
+                        <label><input type="checkbox" id="cp-sec" ${s.seconds ? 'checked' : ''} onchange="XP._onClockChange()"> Show seconds</label>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(popup);
+        popup.addEventListener('click', (e) => e.stopPropagation());
+
+        // Live preview in popup
+        const updatePreview = () => {
+            const timeEl = document.getElementById('cp-live-time');
+            const dateEl = document.getElementById('cp-live-date');
+            if (!timeEl) return;
+            const tz = this._clockSettings.timezone;
+            const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: this._clockSettings.hour12, timeZone: tz };
+            try {
+                timeEl.textContent = new Date().toLocaleTimeString('en-US', opts);
+                dateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: tz });
+            } catch {}
+        };
+        updatePreview();
+        this._clockPreviewInterval = setInterval(updatePreview, 1000);
+    },
+
+    _onClockChange() {
+        const tz = document.getElementById('cp-tz')?.value;
+        const hour12 = document.querySelector('input[name="cp-fmt"]:checked')?.value === '12';
+        const seconds = document.getElementById('cp-sec')?.checked || false;
+
+        this._clockSettings = { timezone: tz || this._clockSettings.timezone, hour12, seconds };
+        this._saveClockSettings();
+
+        // Update tz label in popup
+        const tzLabel = document.getElementById('cp-live-tz');
+        if (tzLabel) tzLabel.textContent = this._clockSettings.timezone;
     },
 
     // Start Menu is handled by StartMenu module (startmenu.js)
+
+    // ══════════════════════════════════════════════════════════
+    //  SYSTEM TRAY
+    // ══════════════════════════════════════════════════════════
+
+    SystemTray: {
+        icons: [],
+
+        init() {
+            this.icons = [
+                { id: 'volume',  icon: 'volume.png',             title: 'Volume',         visible: true,  onClick: () => XP.SystemTray.showVolumePopup() },
+                { id: 'network', icon: 'network-connection.png', title: 'Network',         visible: true,  onClick: () => XP.SystemTray.showNetworkPopup() },
+                { id: 'battery', icon: 'battery-backup.png',     title: 'Battery',         visible: false, onClick: () => XP.SystemTray.showBatteryPopup() },
+                { id: 'updates', icon: 'windows-update.png',     title: 'Windows Update',  visible: false, onClick: () => XP.notify('Windows Update', 'Your system is up to date.') },
+                { id: 'shield',  icon: 'network-and-internet.png', title: 'Security Center', visible: false, onClick: () => XP.notify('Security Center', 'No issues found. System protected.') },
+            ];
+            this.render();
+
+            // Close popups on outside click
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.tray-popup') && !e.target.closest('.tray-overflow-popup') && !e.target.closest('.tray-icons') && !e.target.closest('.tray-expand'))
+                    this._closeAll();
+            });
+        },
+
+        render() {
+            const container = document.getElementById('tray-icons');
+            if (!container) return;
+            container.innerHTML = this.icons
+                .filter(i => i.visible)
+                .map(i => `<img class="tray-icon" id="tray-icon-${i.id}" src="${ICON_PATH}/${i.icon}" alt="${i.title}" title="${i.title}" onclick="event.stopPropagation(); XP.SystemTray.onIconClick('${i.id}')">`)
+                .join('');
+
+            // Show/hide expand arrow
+            const arrow = document.getElementById('tray-expand');
+            const hiddenCount = this.icons.filter(i => !i.visible).length;
+            if (arrow) arrow.style.display = hiddenCount > 0 ? '' : 'none';
+        },
+
+        /* ── Overflow popup (Win 11 style grid) ── */
+        toggleExpand() {
+            const existing = document.querySelector('.tray-overflow-popup');
+            if (existing) { existing.remove(); return; }
+            this._closeAll();
+
+            const hidden = this.icons.filter(i => !i.visible);
+            if (hidden.length === 0) return;
+
+            const popup = document.createElement('div');
+            popup.className = 'tray-overflow-popup';
+            popup.innerHTML = `
+                <div class="tray-overflow-grid">
+                    ${hidden.map(i => `
+                        <div class="tray-overflow-item" title="${i.title}" onclick="event.stopPropagation(); XP.SystemTray.onIconClick('${i.id}'); document.querySelector('.tray-overflow-popup')?.remove();">
+                            <img src="${ICON_PATH}/${i.icon}" alt="${i.title}">
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="tray-overflow-label">${hidden.length} hidden icon${hidden.length > 1 ? 's' : ''}</div>
+            `;
+            popup.addEventListener('click', e => e.stopPropagation());
+            document.body.appendChild(popup);
+        },
+
+        onIconClick(id) {
+            this._closeAll();
+            const icon = this.icons.find(i => i.id === id);
+            if (icon?.onClick) icon.onClick();
+        },
+
+        _closeAll() {
+            document.querySelectorAll('.tray-popup, .tray-overflow-popup').forEach(p => p.remove());
+        },
+
+        _createPopup(title, icon, bodyHtml) {
+            this._closeAll();
+            const popup = document.createElement('div');
+            popup.className = 'tray-popup';
+            popup.innerHTML = `
+                <div class="tray-popup-header">
+                    <img src="${ICON_PATH}/${icon}" onerror="this.style.display='none'" alt="">${title}
+                </div>
+                <div class="tray-popup-body">${bodyHtml}</div>
+            `;
+            popup.addEventListener('click', e => e.stopPropagation());
+            document.body.appendChild(popup);
+            return popup;
+        },
+
+        /* ── Volume ── */
+        showVolumePopup() {
+            const muted = !XP.soundEnabled;
+            this._createPopup('Volume', 'volume.png', `
+                <div style="text-align:center; padding:8px 0">
+                    <div style="font-size:28px; margin-bottom:6px">${muted ? '&#128263;' : '&#128264;'}</div>
+                    <div style="font-weight:600; margin-bottom:10px">${muted ? 'Muted' : 'Sound On'}</div>
+                    <div style="display:flex; align-items:center; justify-content:center; gap:8px">
+                        <span style="font-size:12px">&#128263;</span>
+                        <input type="range" min="0" max="100" value="${muted ? 0 : 80}" style="width:130px; accent-color:#3b79e7">
+                        <span style="font-size:12px">&#128264;</span>
+                    </div>
+                    <div style="margin-top:10px">
+                        <button class="xp-btn" onclick="XP.toggleSound(); XP.SystemTray.showVolumePopup();" style="font-size:11px">
+                            ${muted ? '&#128264; Unmute' : '&#128263; Mute'}
+                        </button>
+                    </div>
+                </div>
+            `);
+        },
+
+        /* ── Network ── */
+        showNetworkPopup() {
+            const online = navigator.onLine;
+            const conn = navigator.connection || {};
+            const type = conn.effectiveType || 'Unknown';
+            const downlink = conn.downlink ? conn.downlink + ' Mbps' : 'N/A';
+            this._createPopup('Network', 'network-connection.png', `
+                <div class="tray-popup-row">
+                    <label>Status</label>
+                    <span style="color:${online ? '#27ae60' : '#c0392b'}; font-weight:600">${online ? '&#9679; Connected' : '&#9679; Disconnected'}</span>
+                </div>
+                <div class="tray-popup-row">
+                    <label>Type</label><span>${type.toUpperCase()}</span>
+                </div>
+                <div class="tray-popup-row">
+                    <label>Speed</label><span>${downlink}</span>
+                </div>
+                <div class="tray-popup-sep"></div>
+                <div style="font-size:10px; color:#888; text-align:center">
+                    Host: <span style="cursor:pointer;color:#2980b9" onclick="navigator.clipboard.writeText(this.textContent)" title="Click to copy">${location.hostname}</span>
+                </div>
+            `);
+        },
+
+        /* ── Battery ── */
+        showBatteryPopup() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(bat => {
+                    const pct = Math.round(bat.level * 100);
+                    const charging = bat.charging;
+                    const timeLeft = bat.dischargingTime && bat.dischargingTime !== Infinity
+                        ? Math.floor(bat.dischargingTime / 60) + ' min remaining' : '';
+                    this._createPopup('Power', 'battery-backup.png', `
+                        <div style="text-align:center; padding:8px 0">
+                            <div style="font-size:24px">${charging ? '&#128268;' : pct > 20 ? '&#128267;' : '&#129707;'}</div>
+                            <div style="font-size:22px; font-weight:bold; margin:4px 0">${pct}%</div>
+                            <div style="font-size:11px; color:#666; margin-bottom:6px">${charging ? 'Charging' : 'On Battery'}</div>
+                            <div style="width:80%; margin:0 auto; height:12px; background:#eee; border-radius:6px; overflow:hidden">
+                                <div style="height:100%; width:${pct}%; background:${pct > 20 ? 'linear-gradient(90deg,#27ae60,#2ecc71)' : 'linear-gradient(90deg,#c0392b,#e74c3c)'}; border-radius:6px; transition:width .3s"></div>
+                            </div>
+                            ${timeLeft ? `<div style="font-size:10px; color:#888; margin-top:6px">${timeLeft}</div>` : ''}
+                        </div>
+                    `);
+                });
+            } else {
+                this._createPopup('Power', 'battery-backup.png', `
+                    <div style="text-align:center; padding:12px; color:#888">Battery API not available<br><span style="font-size:10px">Desktop PC detected</span></div>
+                `);
+            }
+        },
+
+        /* ── Public API ── */
+        addIcon(id, icon, title, onClick, visible = false) {
+            if (this.icons.find(i => i.id === id)) return;
+            this.icons.push({ id, icon, title, visible, onClick });
+            this.render();
+        },
+
+        removeIcon(id) {
+            this.icons = this.icons.filter(i => i.id !== id);
+            this.render();
+        },
+
+        updateIcon(id, props) {
+            const icon = this.icons.find(i => i.id === id);
+            if (!icon) return;
+            Object.assign(icon, props);
+            const el = document.getElementById('tray-icon-' + id);
+            if (el) {
+                if (props.icon) el.src = ICON_PATH + '/' + props.icon;
+                if (props.title) el.title = props.title;
+            }
+        },
+
+        setBadge(id, count) {
+            const el = document.getElementById('tray-icon-' + id);
+            if (!el) return;
+            if (count > 0) {
+                el.parentElement?.classList?.add('tray-badge');
+                el.parentElement?.setAttribute('data-badge', count > 99 ? '99+' : count);
+            } else {
+                el.parentElement?.classList?.remove('tray-badge');
+            }
+        },
+
+        blink(id, on = true) {
+            const el = document.getElementById('tray-icon-' + id);
+            if (el) el.classList.toggle('tray-blink', on);
+        },
+    },
 
     // ══════════════════════════════════════════════════════════
     //  DESKTOP ICONS
@@ -326,7 +661,53 @@ const XP = {
                 this.focusWindow(id);
             }
         });
+        btn.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this._showTaskbarContextMenu(e, id);
+        });
         container.appendChild(btn);
+    },
+
+    _showTaskbarContextMenu(e, id) {
+        const win = this.windows[id];
+        if (!win) return;
+        const ctx = document.getElementById('context-menu');
+        if (!ctx) return;
+
+        const isMin = win.minimized;
+        const isMax = win.maximized;
+
+        ctx.innerHTML = `
+            <div class="context-menu-item${isMin ? '' : ' disabled'}" onclick="${isMin ? `XP.restoreWindow('${id}')` : ''}; document.getElementById('context-menu').classList.remove('visible');">
+                <img src="${ICON_PATH}/restore.png" alt="" onerror="this.style.display='none'" style="width:16px;height:16px"> Restore
+            </div>
+            <div class="context-menu-item" onclick="XP.minimizeWindow('${id}'); document.getElementById('context-menu').classList.remove('visible');">
+                <img src="${ICON_PATH}/minimize.png" alt="" onerror="this.style.display='none'" style="width:16px;height:16px"> Minimize
+            </div>
+            <div class="context-menu-item" onclick="XP.toggleMaximize('${id}'); document.getElementById('context-menu').classList.remove('visible');">
+                <img src="${ICON_PATH}/maximize.png" alt="" onerror="this.style.display='none'" style="width:16px;height:16px"> ${isMax ? 'Restore Down' : 'Maximize'}
+            </div>
+            <div class="context-menu-separator"></div>
+            <div class="context-menu-item" onclick="XP.closeWindow('${id}'); document.getElementById('context-menu').classList.remove('visible');" style="font-weight:bold">
+                <img src="${ICON_PATH}/close-program.png" alt="" onerror="this.style.display='none'" style="width:16px;height:16px"> Close
+            </div>
+        `;
+        ctx.style.left = '-9999px';
+        ctx.style.top = '0';
+        ctx.style.bottom = 'auto';
+        ctx.classList.add('visible');
+
+        requestAnimationFrame(() => {
+            const mw = ctx.offsetWidth, mh = ctx.offsetHeight;
+            const vw = window.innerWidth, vh = window.innerHeight;
+            let x = e.clientX, y = e.clientY - mh;
+            if (x + mw > vw) x = vw - mw - 4;
+            if (y < 0) y = 4;
+            if (x < 0) x = 4;
+            ctx.style.left = x + 'px';
+            ctx.style.top = y + 'px';
+        });
     },
 
     // ── Dragging & Resizing ──────────────────────────────
@@ -421,6 +802,22 @@ const XP = {
                     <img src="${ICON_PATH}/stickynotes.png" alt=""> New Sticky Note
                 </div>
                 <div class="context-menu-separator"></div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('clock')">
+                    <img src="${ICON_PATH}/date-and-time.png" alt=""> Add Clock Widget
+                </div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('weather')">
+                    <img src="${ICON_PATH}/weather.png" alt=""> Add Weather Widget
+                </div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('calendar')">
+                    <img src="${ICON_PATH}/date-and-time.png" alt=""> Add Calendar Widget
+                </div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('netspeed')">
+                    <img src="${ICON_PATH}/network-connection.png" alt=""> Add Network Speed Widget
+                </div>
+                <div class="context-menu-item" onclick="DesktopWidgets.add('sysmonitor')">
+                    <img src="${ICON_PATH}/display-adaptor.png" alt=""> Add System Monitor Widget
+                </div>
+                <div class="context-menu-separator"></div>
                 <div class="context-menu-item" onclick="XP.showThemePicker()">
                     <img src="${ICON_PATH}/appearance.png" alt=""> Themes & Wallpaper
                 </div>
@@ -428,9 +825,23 @@ const XP = {
                     <img src="${ICON_PATH}/information.png" alt=""> About XP Workspace
                 </div>
             `;
-            menu.style.left = e.clientX + 'px';
-            menu.style.top = e.clientY + 'px';
+            menu.style.left = '-9999px';
+            menu.style.top = '0';
+            menu.style.bottom = 'auto';
             menu.classList.add('visible');
+
+            // Reposition to fit in viewport
+            requestAnimationFrame(() => {
+                const mw = menu.offsetWidth, mh = menu.offsetHeight;
+                const vw = window.innerWidth, vh = window.innerHeight;
+                let x = e.clientX, y = e.clientY;
+                if (x + mw > vw) x = vw - mw - 4;
+                if (y + mh > vh - 32) y = vh - 32 - mh; // 32 = taskbar
+                if (x < 0) x = 4;
+                if (y < 0) y = 4;
+                menu.style.left = x + 'px';
+                menu.style.top = y + 'px';
+            });
         });
         document.addEventListener('click', () => menu.classList.remove('visible'));
     },
@@ -463,10 +874,55 @@ const XP = {
             currency:   () => Apps.Currency.open(),
             translator: () => Apps.Translator.open(),
             imagetools: () => Apps.ImageTools.open(),
+            imageeditor: () => Apps.ImageEditor.open(),
+            colorpicker: () => Apps.ColorPicker.open(),
+            jsonformat:  () => Apps.JSONFormatter.open(),
+            pomodoro:    () => Apps.Pomodoro.open(),
+            paint:       () => Apps.Paint.open(),
+            svgeditor:   () => Apps.SVGEditor.open(),
+            pixelart:    () => Apps.PixelArt.open(),
+            wireframe:   () => Apps.Wireframe.open(),
+            regextester: () => Apps.RegexTester.open(),
+            base64tool:  () => Apps.Base64Tool.open(),
+            diffviewer:  () => Apps.DiffViewer.open(),
+            timestamp:   () => Apps.Timestamp.open(),
+            musicplayer: () => Apps.MusicPlayer.open(),
+            videoplayer: () => Apps.VideoPlayer.open(),
             todolist:   () => Apps.TodoList.open(),
             piano:      () => Apps.Piano.open(),
             tetris:     () => Apps.Tetris.open(),
+            minesweeper:() => Apps.Minesweeper.open(),
+            snake:      () => Apps.Snake.open(),
+            game2048:   () => Apps.Game2048.open(),
+            tictactoe:  () => Apps.TicTacToe.open(),
+            memorycard: () => Apps.MemoryCard.open(),
+            solitaire:  () => Apps.Solitaire.open(),
+            breakout:   () => Apps.Breakout.open(),
+            sudoku:     () => Apps.Sudoku.open(),
+            wordle:     () => Apps.Wordle.open(),
+            pong:       () => Apps.Pong.open(),
             hashgen:    () => Apps.HashGenerator.open(),
+            kanban:     () => Apps.Kanban.open(),
+            habittracker:() => Apps.HabitTracker.open(),
+            bookmarks:  () => Apps.Bookmarks.open(),
+            spreadsheet:() => Apps.Spreadsheet.open(),
+            wordprocessor:() => Apps.WordProcessor.open(),
+            apitester:  () => Apps.APITester.open(),
+            stopwatch:  () => Apps.Stopwatch.open(),
+            flappybird: () => Apps.FlappyBird.open(),
+            chess:      () => Apps.Chess.open(),
+            typingtest: () => Apps.TypingTest.open(),
+            hijricalendar:() => Apps.HijriCalendar.open(),
+            dzikircounter:() => Apps.DzikirCounter.open(),
+            qiblacompass:() => Apps.QiblaCompass.open(),
+            display:    () => XP.showThemePicker(),
+            systeminfo: () => Apps.SystemInfo.open(),
+            startup:    () => Apps.StartupManager.open(),
+            storage:    () => Apps.StorageManager.open(),
+            activitylog:() => Apps.ActivityLog.open(),
+            backup:     () => Apps.BackupRestore.open(),
+            apikeys:    () => { const w = document.getElementById('window-apikeys'); if (w) { XP.focusWindow('apikeys'); return; } XP.createWindow('apikeys', { title: 'API Keys', icon: 'key.png', width: 600, height: 400, content: '<div id="ak-body" style="padding:8px">Loading...</div>', onReady: () => { if (typeof ApiKeyManager !== 'undefined') ApiKeyManager.init(); } }); },
+            about:      () => XP.showAbout(),
         };
         if (launchers[appId]) launchers[appId]();
         else this.notify('Application not available', `"${appId}" module is coming soon.`);
@@ -600,6 +1056,22 @@ const XP = {
         document.querySelectorAll('.theme-option').forEach(o => o.classList.remove('active'));
         if (el) el.classList.add('active');
         this.notify('Theme Changed', `Applied ${theme} theme`);
+    },
+
+    clearCacheAndReload() {
+        // Clear all browser caches
+        if ('caches' in window) {
+            caches.keys().then(names => names.forEach(n => caches.delete(n)));
+        }
+        // Clear localStorage (except pinned apps)
+        const pinned = localStorage.getItem('xp_pinned_apps');
+        localStorage.clear();
+        if (pinned) localStorage.setItem('xp_pinned_apps', pinned);
+        // Clear sessionStorage
+        sessionStorage.clear();
+        // Force hard reload bypassing cache
+        this.notify('Clear Cache', 'Cache cleared. Reloading...');
+        setTimeout(() => location.href = location.href.split('?')[0] + '?nocache=' + Date.now(), 500);
     },
 
     showAbout() {

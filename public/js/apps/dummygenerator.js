@@ -71,7 +71,7 @@ Apps.DummyGenerator = {
                     .dg-card-header { background:#ece9d8; padding:4px 8px; font-weight:bold; font-size:11px; color:#003c74; border:1px solid #d4d0c8; border-bottom:none; }
                     .dg-checkboxes { display:flex; flex-wrap:wrap; gap:4px 12px; margin-bottom:8px; padding:6px 8px; background:#f5f3e8; border:1px solid #d4d0c8; }
                     .dg-checkboxes label { font-size:11px; cursor:pointer; display:flex; align-items:center; gap:4px; white-space:nowrap; }
-                    .dg-checkboxes input[type="checkbox"] { width:14px; height:14px; accent-color:#316ac5; appearance:auto; -webkit-appearance:checkbox; }
+                    .dg-checkboxes input[type="checkbox"] { width:14px; height:14px; accent-color:#316ac5; appearance:auto !important; -webkit-appearance:checkbox !important; position:static !important; opacity:1 !important; }
                     .dg-text-result { background:#f5f3e8; border:1px solid #d4d0c8; padding:8px; font-family:Consolas,monospace; font-size:11px; margin-top:8px; white-space:pre-wrap; word-break:break-all; max-height:250px; overflow-y:auto; }
                     .dg-cc-card { background:linear-gradient(135deg,#1a1a2e,#16213e); color:#e0e0e0; border-radius:8px; padding:14px 18px; margin-bottom:8px; font-family:Consolas,monospace; min-width:280px; }
                     .dg-cc-card .cc-number { font-size:15px; letter-spacing:2px; margin:10px 0; color:#fff; }

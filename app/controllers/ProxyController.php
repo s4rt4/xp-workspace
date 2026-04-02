@@ -23,14 +23,31 @@ class ProxyController extends Controller
             return;
         }
 
+        // Collect extra params (everything except path/url)
+        $extra = $_GET;
+        unset($extra['path'], $extra['url']);
+
+        // Also merge POST body if present
+        $postBody = file_get_contents('php://input');
+        $postData = json_decode($postBody, true) ?: [];
+        $extra = array_merge($extra, $postData);
+
         $url = 'https://equran.id/api/' . $path;
         $ch = curl_init($url);
-        curl_setopt_array($ch, [
+        $curlOpts = [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_TIMEOUT => 15,
             CURLOPT_SSL_VERIFYPEER => false,
-        ]);
+        ];
+
+        // If extra params exist, send as POST JSON (some equran.id endpoints require POST)
+        if (!empty($extra)) {
+            $curlOpts[CURLOPT_POST] = true;
+            $curlOpts[CURLOPT_POSTFIELDS] = json_encode($extra);
+            $curlOpts[CURLOPT_HTTPHEADER] = ['Content-Type: application/json'];
+        }
+        curl_setopt_array($ch, $curlOpts);
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);

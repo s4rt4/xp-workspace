@@ -91,7 +91,7 @@ Apps.Quran = {
         const body = document.getElementById('qr-body');
         body.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Loading surahs...</div>';
         try {
-            const res = await fetch('${BASE_URL}/api/proxy/quran?path=v2/surat');
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/surat`);
             const data = await res.json();
             const surahs = data.data || [];
             body.innerHTML = `<div class="qr-surah-grid">${surahs.map(s => `
@@ -161,7 +161,7 @@ Apps.Quran = {
         const body = document.getElementById('qr-body');
         body.innerHTML = '<div style="text-align:center;padding:20px;color:#888">Loading doa...</div>';
         try {
-            const res = await fetch('${BASE_URL}/api/proxy/quran?path=doa');
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=doa`);
             const json = await res.json();
             const doas = json.data || json || [];
             body.innerHTML = doas.map((d, i) => `
@@ -210,66 +210,149 @@ Apps.Quran = {
         const sel = document.getElementById('qr-kota');
         sel.innerHTML = '<option>Loading...</option>';
         try {
-            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/shalat/kabkota?provinsi=${encodeURIComponent(prov)}`);
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/shalat/kabkota&provinsi=${encodeURIComponent(prov)}`);
             const data = await res.json();
-            sel.innerHTML = (data.data || []).map(k => `<option value="${k.id}">${esc(k.lokasi)}</option>`).join('');
+            const kotas = data.data || [];
+            sel.innerHTML = kotas.map(k => {
+                const name = typeof k === 'string' ? k : (k.lokasi || k.nama || k);
+                return `<option value="${esc(String(name))}">${esc(String(name))}</option>`;
+            }).join('');
         } catch { sel.innerHTML = '<option>Failed to load</option>'; }
     },
 
     async _getShalat() {
+        const prov = document.getElementById('qr-provinsi')?.value;
         const kota = document.getElementById('qr-kota')?.value;
-        if (!kota) return;
+        if (!prov || !kota) return;
         const today = new Date();
-        const dateStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
         const el = document.getElementById('qr-shalat-result');
         el.innerHTML = '<div style="color:#888">Loading...</div>';
         try {
-            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/shalat/jadwal/${kota}/${dateStr}`);
+            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/shalat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provinsi: prov, kabkota: kota, bulan: today.getMonth() + 1, tahun: today.getFullYear() }),
+            });
             const data = await res.json();
-            const j = data.data?.jadwal;
-            if (!j) { el.innerHTML = '<div style="color:#888">No schedule data</div>'; return; }
-            el.innerHTML = `<table class="xp-listview" style="width:100%">
-                <tr><th>Waktu</th><th>Jam</th></tr>
-                <tr><td>Subuh</td><td>${j.subuh}</td></tr>
-                <tr><td>Dzuhur</td><td>${j.dzuhur}</td></tr>
-                <tr><td>Ashar</td><td>${j.ashar}</td></tr>
-                <tr><td>Maghrib</td><td>${j.maghrib}</td></tr>
-                <tr><td>Isya</td><td>${j.isya}</td></tr>
-            </table>
-            <div style="font-size:10px;color:#888;margin-top:6px">Tanggal: ${j.tanggal || dateStr}</div>`;
+            const jadwals = data.data?.jadwal;
+            if (!jadwals || !jadwals.length) { el.innerHTML = '<div style="color:#888">No schedule data</div>'; return; }
+            // Find today's schedule
+            const todayDate = today.getDate();
+            const j = jadwals.find(d => d.tanggal === todayDate) || jadwals[0];
+            el.innerHTML = `
+                <div style="font-size:11px;font-weight:bold;color:#003c74;margin-bottom:6px">${data.data.kabkota}, ${data.data.provinsi}</div>
+                <table class="xp-listview" style="width:100%">
+                    <tr><th>Waktu</th><th>Jam</th></tr>
+                    <tr><td>Imsak</td><td>${j.imsak}</td></tr>
+                    <tr><td>Subuh</td><td>${j.subuh}</td></tr>
+                    <tr><td>Terbit</td><td>${j.terbit}</td></tr>
+                    <tr><td>Dhuha</td><td>${j.dhuha}</td></tr>
+                    <tr><td>Dzuhur</td><td>${j.dzuhur}</td></tr>
+                    <tr><td>Ashar</td><td>${j.ashar}</td></tr>
+                    <tr><td>Maghrib</td><td>${j.maghrib}</td></tr>
+                    <tr><td>Isya</td><td>${j.isya}</td></tr>
+                </table>
+                <div style="font-size:10px;color:#888;margin-top:6px">${j.hari}, ${j.tanggal_lengkap}</div>`;
         } catch { el.innerHTML = '<div style="color:red">Failed to load schedule</div>'; }
     },
 
     // ── Search ──
+    _surahCache: null,
+
     _showSearch() {
         const body = document.getElementById('qr-body');
         body.innerHTML = `<div style="padding:12px">
             <h3 style="font-size:13px;color:#003c74;margin-bottom:8px">Cari di Al-Quran</h3>
             <div style="display:flex;gap:8px;margin-bottom:12px">
-                <input class="xp-input" id="qr-search-q" placeholder="Cari ayat, kata, atau topik..." style="flex:1" onkeydown="if(event.key==='Enter')Apps.Quran._doSearch()">
+                <input class="xp-input" id="qr-search-q" placeholder="Cari kata dalam terjemahan ayat..." style="flex:1" onkeydown="if(event.key==='Enter')Apps.Quran._doSearch()">
                 <button class="xp-btn xp-btn-primary" onclick="Apps.Quran._doSearch()">Search</button>
             </div>
+            <div style="font-size:10px;color:#888;margin-bottom:8px">Pencarian di nama surat, arti, dan isi terjemahan ayat (Indonesia)</div>
             <div id="qr-search-result"></div>
         </div>`;
     },
 
     async _doSearch() {
-        const q = document.getElementById('qr-search-q')?.value?.trim();
-        if (!q) return;
+        const q = document.getElementById('qr-search-q')?.value?.trim()?.toLowerCase();
+        if (!q || q.length < 2) return;
         const el = document.getElementById('qr-search-result');
-        el.innerHTML = '<div style="color:#888">Searching...</div>';
+        el.innerHTML = '<div style="color:#888">Searching surahs...</div>';
+
         try {
-            const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/surat?keyword=${encodeURIComponent(q)}`);
-            const data = await res.json();
-            const results = data.data || [];
-            if (results.length === 0) { el.innerHTML = '<div style="color:#888">No results found</div>'; return; }
-            el.innerHTML = results.map(s => `
-                <div class="qr-surah-card" onclick="Apps.Quran.loadSurah(${s.nomor})" style="margin-bottom:4px">
-                    <span class="qs-num">${s.nomor}.</span>
-                    <span class="qs-name">${esc(s.namaLatin)}</span>
-                    <div class="qs-info">${esc(s.arti)} • ${s.jumlahAyat} ayat</div>
-                </div>
-            `).join('');
+            // Load surah list if not cached
+            if (!this._surahCache) {
+                const res = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/surat`);
+                const data = await res.json();
+                this._surahCache = data.data || [];
+            }
+
+            // 1) Search in surah names/descriptions
+            const surahMatches = this._surahCache.filter(s =>
+                (s.namaLatin || '').toLowerCase().includes(q) ||
+                (s.arti || '').toLowerCase().includes(q) ||
+                (s.deskripsi || '').toLowerCase().includes(q)
+            );
+
+            // 2) Search in ayah translations — scan surahs in parallel (max 5 at a time)
+            el.innerHTML = `<div style="color:#888">Searching ayat translations... <span id="qr-search-progress">0/114</span></div>`;
+            const ayahMatches = [];
+            const batchSize = 6;
+
+            for (let i = 0; i < this._surahCache.length; i += batchSize) {
+                const batch = this._surahCache.slice(i, i + batchSize);
+                const results = await Promise.all(batch.map(async s => {
+                    try {
+                        const r = await fetch(`${BASE_URL}/api/proxy/quran?path=v2/surat/${s.nomor}`);
+                        const d = await r.json();
+                        return (d.data?.ayat || []).filter(a =>
+                            (a.teksIndonesia || '').toLowerCase().includes(q) ||
+                            (a.teksLatin || '').toLowerCase().includes(q)
+                        ).map(a => ({ surah: s, ayah: a }));
+                    } catch { return []; }
+                }));
+                results.forEach(r => ayahMatches.push(...r));
+                const prog = document.getElementById('qr-search-progress');
+                if (prog) prog.textContent = `${Math.min(i + batchSize, 114)}/114`;
+
+                // Show partial results and stop if enough
+                if (ayahMatches.length >= 50) break;
+            }
+
+            // Render results
+            let html = '';
+
+            if (surahMatches.length > 0) {
+                html += `<div style="font-size:10px;font-weight:bold;color:#666;margin:8px 0 4px;border-bottom:1px solid #d4d0c8;padding-bottom:2px">SURAT (${surahMatches.length})</div>`;
+                html += surahMatches.map(s => `
+                    <div class="qr-surah-card" onclick="Apps.Quran.loadSurah(${s.nomor})" style="margin-bottom:4px">
+                        <span class="qs-num">${s.nomor}.</span>
+                        <span class="qs-name">${esc(s.namaLatin)}</span>
+                        <div class="qs-info">${esc(s.arti)} • ${s.jumlahAyat} ayat</div>
+                    </div>
+                `).join('');
+            }
+
+            if (ayahMatches.length > 0) {
+                html += `<div style="font-size:10px;font-weight:bold;color:#666;margin:12px 0 4px;border-bottom:1px solid #d4d0c8;padding-bottom:2px">AYAT (${ayahMatches.length}${ayahMatches.length >= 50 ? '+' : ''})</div>`;
+                html += ayahMatches.slice(0, 50).map(m => {
+                    const snippet = (m.ayah.teksIndonesia || '').substring(0, 150);
+                    return `
+                        <div class="qr-surah-card" onclick="Apps.Quran.loadSurah(${m.surah.nomor})" style="margin-bottom:4px">
+                            <span class="qs-num">${esc(m.surah.namaLatin)} : ${m.ayah.nomorAyat}</span>
+                            <div style="font-size:11px;margin-top:2px;line-height:1.4">${this._highlightMatch(snippet, q)}...</div>
+                        </div>`;
+                }).join('');
+            }
+
+            if (!html) html = '<div style="color:#888;padding:8px">No results found</div>';
+            el.innerHTML = html;
         } catch { el.innerHTML = '<div style="color:red">Search failed</div>'; }
+    },
+
+    _highlightMatch(text, q) {
+        const escaped = esc(text);
+        const qEsc = esc(q);
+        const regex = new RegExp(`(${qEsc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return escaped.replace(regex, '<b style="background:#ffeb3b;padding:0 1px;border-radius:1px">$1</b>');
     },
 };

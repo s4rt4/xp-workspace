@@ -69,16 +69,6 @@ const StartMenu = {
                 <img src="${ICON_PATH}/start-menu-programs.png" onerror="this.src='${ICON_PATH}/generic-document.png'" alt="">
                 <span>All Programs</span>
             </div>`;
-        html += `
-            <div class="start-menu-cat" onclick="XP.showThemePicker(); StartMenu.close();">
-                <img src="${ICON_PATH}/appearance.png" alt="">
-                <span>Display</span>
-            </div>`;
-        html += `
-            <div class="start-menu-cat" onclick="XP.showAbout(); StartMenu.close();">
-                <img src="${ICON_PATH}/information.png" alt="">
-                <span>About</span>
-            </div>`;
 
         right.innerHTML = html;
     },

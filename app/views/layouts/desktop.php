@@ -91,7 +91,9 @@
     <div class="taskbar-buttons" id="taskbar-buttons"></div>
 
     <div class="system-tray">
-        <img class="tray-icon" src="<?= BASE_URL ?>/public/icons/audio-devices.png" alt="Sound" title="Sound" onclick="XP.toggleSound()">
+        <div class="tray-expand" id="tray-expand" onclick="XP.SystemTray.toggleExpand()" title="Show hidden icons">&#9650;</div>
+        <div class="tray-icons" id="tray-icons"></div>
+        <div class="tray-divider"></div>
         <span id="tray-clock">--:--</span>
     </div>
 </div>
@@ -117,10 +119,18 @@
             <img src="<?= BASE_URL ?>/public/icons/search.png" alt="" style="width:14px;height:14px">
             <input class="sm-search-input" id="sm-search" placeholder="Search apps..." type="text">
         </div>
-        <button onclick="location.reload()">
-            <img src="<?= BASE_URL ?>/public/icons/restart.png" alt="" style="width:16px;height:16px" onerror="this.style.display='none'">
-            Refresh
-        </button>
+        <div style="display:flex;gap:2px">
+            <button onclick="location.reload()" title="Refresh" style="flex:1">
+                <img src="<?= BASE_URL ?>/public/icons/restart.png" alt="" style="width:16px;height:16px" onerror="this.style.display='none'">
+                Refresh
+            </button>
+            <button onclick="location.reload(true)" title="Hard Refresh (bypass cache)">
+                <img src="<?= BASE_URL ?>/public/icons/forward.png" alt="" style="width:16px;height:16px" onerror="this.style.display='none'">
+            </button>
+            <button onclick="XP.clearCacheAndReload()" title="Clear Cache & Reload">
+                <img src="<?= BASE_URL ?>/public/icons/erase.png" alt="" style="width:16px;height:16px" onerror="this.style.display='none'">
+            </button>
+        </div>
     </div>
 </div>
 
@@ -130,6 +140,7 @@
 <!-- ═══ Scripts ═══ -->
 <script src="<?= BASE_URL ?>/public/js/desktop.js"></script>
 <script src="<?= BASE_URL ?>/public/js/startmenu.js"></script>
+<script src="<?= BASE_URL ?>/public/js/widgets.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/notepad.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/codeplayground.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/vscoder.js"></script>
@@ -142,10 +153,52 @@
 <script src="<?= BASE_URL ?>/public/js/apps/currency.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/translator.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/imagetools.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/imageeditor.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/colorpicker.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/jsonformatter.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/pomodoro.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/paint.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/svgeditor.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/pixelart.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/wireframe.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/systeminfo.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/startupmanager.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/storagemanager.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/activitylog.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/backuprestore.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/hijricalendar.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/dzikircounter.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/qiblacompass.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/kanban.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/habittracker.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/bookmarks.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/spreadsheet.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/wordprocessor.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/apitester.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/stopwatch.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/flappybird.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/chess.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/typingtest.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/regextester.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/base64tool.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/diffviewer.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/timestamp.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/musicplayer.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/videoplayer.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/calculator.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/todolist.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/piano.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/tetris.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/minesweeper.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/snake.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/game2048.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/tictactoe.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/memorycard.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/solitaire.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/breakout.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/sudoku.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/wordle.js"></script>
+<script src="<?= BASE_URL ?>/public/js/apps/pong.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/hashgenerator.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/tvplayer.js"></script>
 <script src="<?= BASE_URL ?>/public/js/apps/radio.js"></script>

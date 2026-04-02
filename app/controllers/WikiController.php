@@ -136,13 +136,17 @@ class WikiController extends Controller
         }
         
         $results = Database::fetchAll(
-            "SELECT id, title, slug, icon, 
-                    substr(content, max(1, instr(lower(content), lower(?)) - 50), 150) as snippet
-             FROM wiki_pages 
+            "SELECT id, title, slug, icon,
+                    substr(content,
+                        CASE WHEN instr(lower(content), lower(?)) > 50
+                             THEN instr(lower(content), lower(?)) - 50
+                             ELSE 1 END,
+                        150) as snippet
+             FROM wiki_pages
              WHERE title LIKE ? OR content LIKE ?
              ORDER BY is_pinned DESC, updated_at DESC
              LIMIT 20",
-            [$q, "%{$q}%", "%{$q}%"]
+            [$q, $q, "%{$q}%", "%{$q}%"]
         );
         
         $this->json(['data' => $results]);
