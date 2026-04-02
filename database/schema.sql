@@ -16,7 +16,7 @@ INSERT IGNORE INTO preferences (`key`, value) VALUES
     ('sounds', '1'),
     ('wallpaper', 'bliss.png'),
     ('username', 'User'),
-    ('desktop_icons', '["projects","tasks","wiki","files","notes"]');
+    ('desktop_icons', '["dashboard","projects","tasks","wiki","files","notes","todolist","quran"]');
 
 -- ── Projects ───────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS projects (
@@ -224,4 +224,28 @@ INSERT IGNORE INTO tasks (project_id, column_id, title, description, priority, s
     (1, 4, 'Welcome to XP Workspace', 'You did it! This task is already done.', 'low', 0);
 
 INSERT IGNORE INTO wiki_pages (id, title, slug, content, icon) VALUES
-    (1, 'Welcome', 'welcome', '# Welcome to XP Workspace\r\n\r\nYour personal **Knowledge Base** and **Project Manager** wrapped in Windows XP nostalgia.\r\n\r\n## Getting Started\r\n\r\n- Use the **Start Menu** to launch different apps\r\n- **Drag windows** around the desktop\r\n- **Right-click** for context menus\r\n- Everything saves automatically\r\n\r\n## Modules\r\n\r\n- **Project Manager** - Manage projects with Kanban boards\r\n- **Task Board** - Track tasks with priorities and statuses\r\n- **Knowledge Base** - Write and organize notes like a wiki\r\n- **File Manager** - Upload and organize files\r\n- **Quick Notes** - Sticky notes on your desktop\r\n\r\nHappy organizing!', '🏠');
+    (1, 'Welcome', 'welcome', '# Welcome to XP Workspace\r\n\r\nYour personal **Knowledge Base**, **Project Manager**, and **Productivity Suite** wrapped in Windows XP nostalgia.\r\n\r\n## Getting Started\r\n\r\n- Use the **Start Menu** to launch different apps\r\n- **Drag windows** around the desktop\r\n- **Right-click** desktop to add widgets or open apps\r\n- Everything saves automatically\r\n\r\n## Categories\r\n\r\n- **Workspace** - Dashboard, Projects, Tasks, Wiki, Files, Notes, Todo, Pomodoro, Kanban, Habits, Bookmarks\r\n- **Office** - Notepad, Data Viewer, PDF Flipbook, Invoice, Spreadsheet, Word Processor\r\n- **Graphic** - Paint, Image Editor, SVG Editor, Pixel Art, Wireframe Builder, Color Picker\r\n- **Development** - VSCoder, Code Playground, JSON Formatter, Regex Tester, API Tester, Diff Viewer, and more\r\n- **Utilities** - Calculator, Weather, Currency, Translator, Stopwatch\r\n- **Entertainment** - Music/Video Player, TV, Radio, Piano, Tetris, Chess, Flappy Bird, and more\r\n- **Islamic** - Quran, Hijri Calendar, Dzikir Counter, Qibla Compass\r\n- **System** - System Info, Startup Manager, Storage, Activity Log, Backup/Restore\r\n\r\n## Desktop Features\r\n\r\n- **Widgets** - Right-click desktop to add Clock, Weather, Calendar, Network Speed, System Monitor\r\n- **System Tray** - Volume, Network, Battery status\r\n- **Themes** - Luna Blue, Silver, Olive, Classic\r\n\r\nHappy organizing!', '🏠');
+
+-- ═══════════════════════════════════════════════════════════
+-- Seed Media Data (TV Channels & Radio Stations)
+-- ═══════════════════════════════════════════════════════════
+
+INSERT IGNORE INTO tv_channels (name, url, logo, group_name, sort_order) VALUES
+('TVRI Nasional', 'https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8', 'logo_tv_tvri_nasional.png', 'TVRI', 1),
+('TVRI Sport', 'https://ott-balancer.tvri.go.id/live/eds/SportHD/hls/SportHD.m3u8', 'logo_tv_tvri_sport.png', 'TVRI', 2),
+('TVRI World', 'https://ott-balancer.tvri.go.id/live/eds/TVRIWorld/hls/TVRIWorld.m3u8', 'logo_tv_tvri_world.png', 'TVRI', 3),
+('TransTV', 'https://video.detik.com/transtv/smil:transtv.smil/playlist.m3u8', 'logo_tv_transtv.png', '', 10),
+('Trans7', 'https://video.detik.com/trans7/smil:trans7.smil/playlist.m3u8', 'logo_tv_trans7.png', '', 11),
+('CNN Indonesia', 'https://live.cnnindonesia.com/livecnn/smil:cnntv.smil/playlist.m3u8', 'logo_tv_cnn.png', '', 12),
+('CNBC Indonesia', 'https://live.cnbcindonesia.com/livecnbc/smil:cnbctv.smil/playlist.m3u8', 'logo_tv_cnbc.png', '', 13);
+
+INSERT IGNORE INTO radio_stations (name, url, country, category) VALUES
+('Ardan Radio','https://n13.rcs.revma.com/ugpyzu9n5k3vv','Indonesia','local'),
+('Delta FM','https://s1.cloudmu.id/listen/delta_fm/stream','Indonesia','local'),
+('Elshinta','https://stream-ssl.arenastreaming.com:8000/jakarta','Indonesia','local'),
+('Gen FM 98.7 Jakarta','https://wz.mari.co.id:1936/web_genfm/genfm/playlist.m3u8','Indonesia','local'),
+('Hard Rock','https://n08.radiojar.com/7csmg90fuqruv.mp3','Indonesia','local'),
+('Prambors FM','https://s2.cloudmu.id/listen/prambors/stream','Indonesia','local'),
+('RRI Pro 1 Jakarta','https://stream-node1.rri.co.id/streaming/25/9025/rrijakartapro1.mp3','Indonesia','local'),
+('BBC Radio 1','http://stream.live.vc.bbcmedia.co.uk/bbc_radio_one','United Kingdom','international'),
+('NPR News','https://npr-ice.streamguys1.com/live.mp3','United States','international');
